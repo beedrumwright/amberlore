@@ -1,0 +1,2661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMBERLORE — a song-cycle by Baird Lupine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IM+Fell+English:ital@0;1&family=Caveat:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a2118; color: #e8e0c8;
+    font-family: 'Cormorant Garamond', serif; line-height: 1.7; overflow-x: hidden;
+    background-image: radial-gradient(ellipse at top, rgba(80,110,60,0.18) 0%, transparent 60%), radial-gradient(ellipse at bottom, rgba(60,50,90,0.12) 0%, transparent 50%);
+    min-height: 100vh;
+  }
+  .leaves { position: fixed; top:0; left:0; right:0; bottom:0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .leaf { position: absolute; color: rgba(140,170,100,0.18); font-size: 1.2rem; animation: drift 25s linear infinite; font-variant-emoji: text; }
+  @keyframes drift { 0% { transform: translate(0,-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translate(40px,110vh) rotate(360deg); opacity: 0; } }
+  @keyframes drift-slow { 0% { transform: translate(0,-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.6; } 90% { opacity: 0.6; } 100% { transform: translate(20px,110vh) rotate(180deg); opacity: 0; } }
+  @keyframes drift-fast { 0% { transform: translate(0,-10vh); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translate(10px,110vh); opacity: 0; } }
+  @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.7; } }
+  @keyframes sway { 0%, 100% { transform: translate(0,-10vh) rotate(-5deg); opacity: 0; } 15% { opacity: 0.55; } 85% { opacity: 0.55; } 100% { transform: translate(15px,110vh) rotate(5deg); opacity: 0; } }
+
+  /* Voice ambient layer — full-page drifting motifs per raconteur */
+  .voice-ambient {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 1; overflow: hidden;
+    opacity: 0; transition: opacity 0.8s ease;
+  }
+  .voice-ambient.active { opacity: 1; }
+  .ambient-mark {
+    position: absolute;
+    font-variant-emoji: text;
+    -webkit-font-variant-emoji: text;
+    font-family: 'IM Fell English', serif;
+  }
+
+  /* When active voice ambient is shown, the default leaves fade out */
+  body.has-voice-ambient .leaves { opacity: 0; transition: opacity 0.5s; }
+
+  nav {
+    position: fixed; top:0; left:0; right:0; padding: 1.2rem 2.5rem;
+    display: flex; justify-content: space-between; align-items: center; z-index: 100;
+    background: linear-gradient(180deg, rgba(20,28,18,0.97), rgba(20,28,18,0.7) 80%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  nav .brand {
+    font-family: 'IM Fell English', serif; font-size: 1.4rem; letter-spacing: 0.18em;
+    color: #c8b87a; font-style: italic; cursor: pointer; text-decoration: none;
+  }
+  nav ul { list-style: none; display: flex; gap: 2.2rem; }
+  nav a {
+    color: #d8d0b8; text-decoration: none; opacity: 0.85;
+    font-family: 'IM Fell English', serif; font-size: 1.05rem; font-style: italic;
+    transition: all 0.3s; cursor: pointer;
+  }
+  nav a:hover, nav a.active { color: #c8b87a; opacity: 1; }
+
+  /* Page system */
+  .page { display: none; padding-top: 5rem; }
+  .page.active { display: block; }
+
+  /* Hero (home page) */
+  .hero {
+    min-height: calc(100vh - 5rem); display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    position: relative; z-index: 2; padding: 3rem 2rem;
+  }
+  .hero-ornament { font-size: 1.5rem; color: #c8b87a; opacity: 0.7; margin-bottom: 1.5rem; letter-spacing: 0.5em; }
+  .hero-mark {
+    font-family: 'IM Fell English', serif; font-size: 1rem; color: #c8b87a;
+    opacity: 0.85; margin-bottom: 2rem; font-style: italic; letter-spacing: 0.15em;
+  }
+  .hero h1 {
+    font-family: 'IM Fell English', serif; font-size: clamp(3rem, 11vw, 7.5rem);
+    letter-spacing: 0.1em; font-weight: 400; color: #e8d49a; margin-bottom: 0.8rem;
+    text-shadow: 0 0 50px rgba(200,184,122,0.2); line-height: 1;
+  }
+  .hero .subtitle {
+    font-style: italic; font-size: 1.4rem; color: #b5c4a0;
+    margin-bottom: 2.5rem; max-width: 600px;
+  }
+  .hero .author {
+    font-family: 'IM Fell English', serif; font-size: 1.1rem;
+    color: #a89c7c; font-style: italic;
+  }
+  .hero .author::before, .hero .author::after {
+    content: ''; display: inline-block; width: 40px; height: 1px;
+    background: rgba(168,156,124,0.5); vertical-align: middle; margin: 0 1.2rem;
+  }
+  .hero-enter {
+    margin-top: 3rem; padding: 0.85rem 2.5rem; background: transparent;
+    border: 1px solid rgba(200,184,122,0.5); color: #c8b87a;
+    font-family: 'IM Fell English', serif; font-size: 1.1rem; font-style: italic;
+    cursor: pointer; transition: all 0.3s; letter-spacing: 0.1em;
+  }
+  .hero-enter:hover { background: rgba(200,184,122,0.1); border-color: #c8b87a; }
+
+  /* General page styles */
+  .container { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; position: relative; z-index: 2; }
+  .page-label {
+    font-family: 'IM Fell English', serif; font-size: 0.95rem;
+    letter-spacing: 0.25em; color: #c8b87a; opacity: 0.8;
+    margin-bottom: 0.5rem; font-style: italic; text-align: center;
+  }
+  .page-title {
+    font-family: 'IM Fell English', serif; font-size: 3rem; font-weight: 400;
+    color: #e8d49a; text-align: center; margin-bottom: 0.5rem;
+  }
+  .ornament-divider {
+    text-align: center; color: #c8b87a; opacity: 0.5;
+    font-size: 1.3rem; margin: 1.5rem 0 2.5rem;
+    letter-spacing: 1.5em; padding-left: 1.5em;
+  }
+  .container p { font-size: 1.18rem; margin-bottom: 1.4rem; color: #d8d0b8; }
+  .container p.lead { font-size: 1.35rem; font-style: italic; color: #e8e0c8; text-align: center; max-width: 700px; margin-left: auto; margin-right: auto; }
+
+  /* Voices grid */
+  .voices-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.2rem; margin-top: 2.5rem;
+  }
+  .voice-card {
+    aspect-ratio: 3/4;
+    background: linear-gradient(180deg, rgba(45,60,38,0.5), rgba(28,38,26,0.85));
+    border: 1px solid rgba(200,184,122,0.2);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 1.2rem; border-radius: 3px;
+    cursor: pointer; transition: all 0.3s; position: relative;
+    overflow: hidden;
+  }
+  .voice-card .portrait {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-size: cover; background-position: center;
+    opacity: 0.5; transition: opacity 0.3s;
+    z-index: 0;
+  }
+  .voice-card:hover .portrait { opacity: 0.75; }
+  .voice-card .portrait::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(28,38,26,0.2) 0%, rgba(28,38,26,0.85) 75%);
+  }
+  .voice-card .role, .voice-card .name { position: relative; z-index: 1; }
+  .voice-card::before {
+    content: '❦'; position: absolute; top: 0.7rem; right: 0.9rem;
+    color: #c8b87a; opacity: 0.4; font-size: 1rem; transition: opacity 0.3s;
+  }
+  .voice-card:hover {
+    border-color: rgba(200,184,122,0.6); transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .voice-card:hover::before { opacity: 0.9; }
+  .voice-card .role {
+    font-family: 'IM Fell English', serif; font-size: 0.85rem;
+    color: #b5c4a0; opacity: 0.85; margin-bottom: 0.2rem; font-style: italic;
+  }
+  .voice-card .name {
+    font-family: 'IM Fell English', serif; font-size: 1.5rem; color: #e8d49a;
+  }
+
+  /* Individual raconteur page */
+  .raconteur-page {
+    max-width: 720px; margin: 0 auto; padding: 4rem 2rem; position: relative; z-index: 2;
+  }
+  .raconteur-page .back-link {
+    font-family: 'IM Fell English', serif; font-style: italic; font-size: 1rem;
+    color: #b5c4a0; opacity: 0.75; cursor: pointer; text-decoration: none;
+    display: inline-block; margin-bottom: 2.5rem; transition: opacity 0.2s;
+  }
+  .raconteur-page .back-link:hover { opacity: 1; color: #c8b87a; }
+  .raconteur-page .r-role {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #b5c4a0; opacity: 0.85; font-size: 1.1rem;
+    letter-spacing: 0.1em; text-align: center; margin-bottom: 0.5rem;
+  }
+  .raconteur-page h1 {
+    font-family: 'IM Fell English', serif; font-size: 4rem;
+    color: #e8d49a; text-align: center; font-weight: 400;
+    font-style: italic; line-height: 1;
+  }
+  .raconteur-page .r-meta {
+    text-align: center; opacity: 0.7; font-style: italic;
+    margin-top: 0.6rem; font-size: 1rem;
+  }
+  .raconteur-page .r-divider {
+    text-align: center; color: #c8b87a; opacity: 0.5;
+    font-size: 1.3rem; margin: 2rem 0 2.5rem;
+    letter-spacing: 1em; padding-left: 1em;
+  }
+  .raconteur-page .r-body {
+    background: rgba(28,38,26,0.4); border: 1px solid rgba(200,184,122,0.2);
+    padding: 2.5rem; border-radius: 3px; position: relative;
+  }
+  .raconteur-page .r-body::before, .raconteur-page .r-body::after {
+    content: '❦'; position: absolute; color: #c8b87a; opacity: 0.4; font-size: 1.2rem;
+  }
+  .raconteur-page .r-body::before { top: 0.6rem; left: 1rem; }
+  .raconteur-page .r-body::after { bottom: 0.6rem; right: 1rem; transform: rotate(180deg); }
+  .raconteur-page .r-body p { font-size: 1.15rem; margin-bottom: 1.2rem; color: #e0d8c0; }
+  .raconteur-page .r-body p:last-child { margin-bottom: 0; }
+  .raconteur-page .r-sig {
+    text-align: right; font-style: italic; color: #c8b87a;
+    margin-top: 1.5rem; font-size: 1.05rem;
+  }
+  .raconteur-page .r-extras {
+    margin-top: 2.5rem; padding: 1.8rem;
+    background: rgba(20,28,18,0.5); border-left: 2px solid rgba(200,184,122,0.3);
+    border-radius: 2px;
+  }
+  .raconteur-page .r-extras h3 {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #c8b87a; font-size: 1.2rem; margin-bottom: 0.8rem; font-weight: 400;
+  }
+  .raconteur-page .r-extras p { font-size: 1rem; margin-bottom: 0.4rem; opacity: 0.85; }
+  .raconteur-page .r-portrait {
+    max-width: 280px; margin: 0 auto 2rem; display: block;
+    border: 1px solid rgba(200,184,122,0.3); border-radius: 3px;
+    padding: 0.5rem; background: rgba(28,38,26,0.4);
+  }
+  .raconteur-page .r-portrait img {
+    width: 100%; height: auto; display: block; border-radius: 2px;
+  }
+
+  /* Map zoom */
+  .map-image-wrapper {
+    overflow: hidden; border-radius: 2px;
+    position: relative; touch-action: none; cursor: zoom-in;
+  }
+  .map-image-wrapper.zoomed { cursor: grab; }
+  .map-image-wrapper.zoomed:active { cursor: grabbing; }
+  .map-image-wrapper .map-hint {
+    position: absolute; bottom: 0.6rem; right: 0.6rem;
+    font-family: 'IM Fell English', serif; font-style: italic;
+    font-size: 0.8rem; color: #c8b87a; opacity: 0.7;
+    background: rgba(28,38,26,0.85); padding: 0.25rem 0.7rem;
+    border-radius: 2px; pointer-events: none;
+    transition: opacity 0.3s; z-index: 2;
+  }
+  .map-image-wrapper.zoomed .map-hint { opacity: 0; }
+  .map-image {
+    display: block; width: 100%; height: auto;
+    border-radius: 2px;
+    transition: transform 0.3s ease;
+    transform-origin: center center;
+  }
+  .map-image.zoomed { transition: none; }
+
+  /* Behind the scenes page */
+  .process-section {
+    margin-top: 2.5rem;
+    background: rgba(28,38,26,0.4);
+    border: 1px solid rgba(200,184,122,0.2);
+    padding: 2rem 2.2rem; border-radius: 3px;
+  }
+  .process-section h3 {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #e8d49a; font-size: 1.6rem; font-weight: 400;
+    margin-bottom: 0.8rem;
+  }
+  .process-section p { font-size: 1.05rem; line-height: 1.7; margin-bottom: 1rem; }
+  .process-section p:last-child { margin-bottom: 0; }
+  .process-section blockquote {
+    border-left: 2px solid rgba(200,184,122,0.4);
+    padding: 0.4rem 1.2rem; margin: 1.2rem 0;
+    font-style: italic; opacity: 0.85;
+  }
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem; margin: 1.5rem 0;
+  }
+  .stat-block {
+    text-align: center; padding: 1.2rem;
+    background: rgba(45,60,38,0.3); border-radius: 3px;
+  }
+  .stat-block .stat-num {
+    font-family: 'IM Fell English', serif; font-size: 2.3rem;
+    color: #e8d49a; line-height: 1;
+  }
+  .stat-block .stat-label {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #b5c4a0; opacity: 0.85; font-size: 0.9rem;
+    margin-top: 0.4rem;
+  }
+
+  /* ============================================
+     PER-VOICE PERSONALITIES
+     Each raconteur gets a custom palette and motif.
+     ============================================ */
+
+  /* Saturn — cosmos, ink, stars. The creator's quiet vastness. */
+  .voice-saturn .r-body {
+    background: linear-gradient(135deg, rgba(20,18,40,0.7), rgba(35,28,55,0.5));
+    border-color: rgba(180,180,220,0.3);
+  }
+  .voice-saturn .r-divider, .voice-saturn .r-sig, .voice-saturn .r-role { color: #c8c0e0; }
+  .voice-saturn .r-body::before, .voice-saturn .r-body::after { content: '✦'; color: #c8c0e0; }
+  .voice-saturn h1 { color: #e8e0ff; }
+
+  /* Vita — sun, lute, gold warmth. The entertainer's blaze. */
+  .voice-vita .r-body {
+    background: linear-gradient(135deg, rgba(55,40,15,0.6), rgba(70,50,20,0.5));
+    border-color: rgba(255,200,100,0.35);
+  }
+  .voice-vita .r-divider, .voice-vita .r-sig, .voice-vita .r-role { color: #f0c060; }
+  .voice-vita .r-body::before, .voice-vita .r-body::after { content: '☀'; color: #f0c060; }
+  .voice-vita h1 { color: #ffd870; }
+
+  /* Reika — rain, weather, gray-blue sorrow. */
+  .voice-reika .r-body {
+    background: linear-gradient(180deg, rgba(35,45,60,0.7), rgba(50,60,75,0.5));
+    border-color: rgba(150,180,210,0.3);
+  }
+  .voice-reika .r-divider, .voice-reika .r-sig, .voice-reika .r-role { color: #a8c0d8; }
+  .voice-reika .r-body::before, .voice-reika .r-body::after { content: '☂'; color: #a8c0d8; }
+  .voice-reika h1 { color: #d0e0f0; }
+
+  /* Archemoros — nightmare, moon, deep purple shadow. */
+  .voice-archemoros .r-body {
+    background: linear-gradient(135deg, rgba(20,10,40,0.8), rgba(35,15,50,0.6));
+    border-color: rgba(150,120,200,0.35);
+  }
+  .voice-archemoros .r-divider, .voice-archemoros .r-sig, .voice-archemoros .r-role { color: #b099e0; }
+  .voice-archemoros .r-body::before, .voice-archemoros .r-body::after { content: '☾'; color: #b099e0; }
+  .voice-archemoros h1 { color: #d8c0ff; }
+
+  /* Ruby Rose — flapper, brass, performance. */
+  .voice-rubyrose .r-body {
+    background: linear-gradient(135deg, rgba(70,40,40,0.6), rgba(60,30,30,0.5));
+    border-color: rgba(220,140,140,0.35);
+  }
+  .voice-rubyrose .r-divider, .voice-rubyrose .r-sig, .voice-rubyrose .r-role { color: #e89090; }
+  .voice-rubyrose .r-body::before, .voice-rubyrose .r-body::after { content: '✿'; color: #e89090; }
+  .voice-rubyrose h1 { color: #ffb0b0; }
+
+  /* Fenris — wrong-sweet pink, silver, the terror behind the smile. */
+  .voice-fenris .r-body {
+    background: linear-gradient(135deg, rgba(60,30,55,0.65), rgba(45,25,50,0.55));
+    border-color: rgba(240,150,200,0.35);
+  }
+  .voice-fenris .r-divider, .voice-fenris .r-sig, .voice-fenris .r-role { color: #f090c0; }
+  .voice-fenris .r-body::before, .voice-fenris .r-body::after { content: '✦'; color: #d8d8e8; }
+  .voice-fenris h1 { color: #ffb0d8; }
+
+  /* Odalia — feudal Japan makeup, blood deal, ghostly red. */
+  .voice-odalia .r-body {
+    background: linear-gradient(135deg, rgba(40,15,20,0.75), rgba(50,20,25,0.6));
+    border-color: rgba(200,80,80,0.35);
+  }
+  .voice-odalia .r-divider, .voice-odalia .r-sig, .voice-odalia .r-role { color: #d86060; }
+  .voice-odalia .r-body::before, .voice-odalia .r-body::after { content: '✦'; color: #d86060; }
+  .voice-odalia h1 { color: #ffa0a0; }
+
+  /* Naomi — silver cuffs, the imprisoned princess, harp blue. */
+  .voice-naomi .r-body {
+    background: linear-gradient(180deg, rgba(40,50,65,0.7), rgba(30,40,55,0.5));
+    border-color: rgba(200,210,220,0.4);
+  }
+  .voice-naomi .r-divider, .voice-naomi .r-sig, .voice-naomi .r-role { color: #c8d8e8; }
+  .voice-naomi .r-body::before, .voice-naomi .r-body::after { content: '♪'; color: #c8d8e8; }
+  .voice-naomi h1 { color: #e0eaf5; }
+
+  /* Silver — gunmetal, the silver bullet, the swagger. */
+  .voice-silver .r-body {
+    background: linear-gradient(135deg, rgba(45,50,55,0.7), rgba(35,38,42,0.6));
+    border-color: rgba(200,200,210,0.35);
+  }
+  .voice-silver .r-divider, .voice-silver .r-sig, .voice-silver .r-role { color: #c8c8d0; }
+  .voice-silver .r-body::before, .voice-silver .r-body::after { content: '★'; color: #c8c8d0; }
+  .voice-silver h1 { color: #e8e8f0; }
+
+  /* Ashlin — Jheria gold, paint, joy. */
+  .voice-ashlin .r-body {
+    background: linear-gradient(135deg, rgba(70,55,25,0.55), rgba(60,65,30,0.5));
+    border-color: rgba(240,200,100,0.4);
+  }
+  .voice-ashlin .r-divider, .voice-ashlin .r-sig, .voice-ashlin .r-role { color: #f0d070; }
+  .voice-ashlin .r-body::before, .voice-ashlin .r-body::after { content: '❀'; color: #f0d070; }
+  .voice-ashlin h1 { color: #ffe890; }
+
+  /* Silvia — purple, chains, the monster. */
+  .voice-silvia .r-body {
+    background: linear-gradient(135deg, rgba(40,20,55,0.75), rgba(30,15,45,0.6));
+    border-color: rgba(160,100,220,0.4);
+  }
+  .voice-silvia .r-divider, .voice-silvia .r-sig, .voice-silvia .r-role { color: #b890e0; }
+  .voice-silvia .r-body::before, .voice-silvia .r-body::after { content: '⛓'; color: #b890e0; }
+  .voice-silvia h1 { color: #d8a8ff; }
+
+  /* Christopher — gentle olive, stars, faith-keeper. */
+  .voice-christopher .r-body {
+    background: linear-gradient(135deg, rgba(35,40,30,0.65), rgba(45,50,40,0.5));
+    border-color: rgba(180,200,160,0.4);
+  }
+  .voice-christopher .r-divider, .voice-christopher .r-sig, .voice-christopher .r-role { color: #b8d090; }
+  .voice-christopher .r-body::before, .voice-christopher .r-body::after { content: '✦'; color: #b8d090; }
+  .voice-christopher h1 { color: #d8e8b8; }
+
+  /* Onine — handwritten, raw, lab tag. */
+  .voice-onine .r-body {
+    background: rgba(50,45,30,0.5);
+    border-color: rgba(220,150,80,0.4);
+    font-family: 'Caveat', cursive;
+  }
+  .voice-onine .r-body p {
+    font-family: 'Caveat', cursive !important;
+    font-size: 1.4rem !important; color: #f0d8b0;
+  }
+  .voice-onine .r-divider, .voice-onine .r-sig, .voice-onine .r-role { color: #e8a060; }
+  .voice-onine .r-body::before, .voice-onine .r-body::after { content: '✦'; color: #e8a060; }
+  .voice-onine h1 { color: #ffc080; }
+
+  /* Charlotte — blue headband, magic, the dreamer-bookworm. */
+  .voice-charlotte .r-body {
+    background: linear-gradient(135deg, rgba(25,40,60,0.65), rgba(30,45,65,0.5));
+    border-color: rgba(120,170,230,0.4);
+  }
+  .voice-charlotte .r-divider, .voice-charlotte .r-sig, .voice-charlotte .r-role { color: #80b0e8; }
+  .voice-charlotte .r-body::before, .voice-charlotte .r-body::after { content: '✦'; color: #80b0e8; }
+  .voice-charlotte h1 { color: #b0d0ff; }
+
+  /* Caleb — earthy brown, the searcher. */
+  .voice-caleb .r-body {
+    background: linear-gradient(135deg, rgba(55,40,25,0.6), rgba(45,32,20,0.55));
+    border-color: rgba(200,150,90,0.35);
+  }
+  .voice-caleb .r-divider, .voice-caleb .r-sig, .voice-caleb .r-role { color: #d0a070; }
+  .voice-caleb .r-body::before, .voice-caleb .r-body::after { content: '❦'; color: #d0a070; }
+  .voice-caleb h1 { color: #e8c090; }
+
+  /* Calliope — corrupted red gem, specter, grief. */
+  .voice-calliope .r-body {
+    background: linear-gradient(135deg, rgba(50,15,20,0.75), rgba(30,15,25,0.6));
+    border-color: rgba(220,80,100,0.4);
+  }
+  .voice-calliope .r-divider, .voice-calliope .r-sig, .voice-calliope .r-role { color: #e07090; }
+  .voice-calliope .r-body::before, .voice-calliope .r-body::after { content: '✦'; color: #e07090; }
+  .voice-calliope h1 { color: #ffa0b8; }
+
+  /* Vyne — green, growth, the gardener. */
+  .voice-vyne .r-body {
+    background: linear-gradient(135deg, rgba(25,45,30,0.7), rgba(35,55,35,0.5));
+    border-color: rgba(140,200,140,0.4);
+  }
+  .voice-vyne .r-divider, .voice-vyne .r-sig, .voice-vyne .r-role { color: #98d098; }
+  .voice-vyne .r-body::before, .voice-vyne .r-body::after { content: '❀'; color: #98d098; }
+  .voice-vyne h1 { color: #c0e8c0; }
+
+  /* Lilac — soft purple, mother-star, the dreamer. */
+  .voice-lilac .r-body {
+    background: linear-gradient(135deg, rgba(55,45,65,0.6), rgba(45,40,60,0.5));
+    border-color: rgba(200,170,230,0.4);
+  }
+  .voice-lilac .r-divider, .voice-lilac .r-sig, .voice-lilac .r-role { color: #d8b8e8; }
+  .voice-lilac .r-body::before, .voice-lilac .r-body::after { content: '★'; color: #d8b8e8; }
+  .voice-lilac h1 { color: #e8d0ff; }
+
+  /* Roxanne — milky gray, the lantern, the disguise. */
+  .voice-roxanne .r-body {
+    background: linear-gradient(135deg, rgba(40,40,50,0.55), rgba(50,50,60,0.45));
+    border-color: rgba(220,220,230,0.35);
+  }
+  .voice-roxanne .r-divider, .voice-roxanne .r-sig, .voice-roxanne .r-role { color: #c8c8d8; }
+  .voice-roxanne .r-body::before, .voice-roxanne .r-body::after { content: '✦'; color: #c8c8d8; }
+  .voice-roxanne h1 { color: #e8e8f0; }
+
+  /* ============================================
+     INTERLUDE PERSONALITIES
+     Each interlude gets a custom palette and motif.
+     ============================================ */
+
+  /* Kaiso — warm hearth, soup, candle-light. */
+  .voice-kaiso .r-body {
+    background: linear-gradient(135deg, rgba(55,40,25,0.65), rgba(45,32,20,0.55));
+    border-color: rgba(232,184,112,0.4);
+  }
+  .voice-kaiso .r-divider, .voice-kaiso .r-sig, .voice-kaiso .r-role { color: #e8b870; }
+  .voice-kaiso .r-body::before, .voice-kaiso .r-body::after { content: '❦'; color: #e8b870; }
+  .voice-kaiso h1 { color: #f8d090; }
+
+  /* Nova / Fate — cool distant silver-blue, kin of Saturn but cooler. */
+  .voice-nova .r-body {
+    background: linear-gradient(135deg, rgba(25,28,45,0.7), rgba(35,32,55,0.55));
+    border-color: rgba(180,184,210,0.35);
+  }
+  .voice-nova .r-divider, .voice-nova .r-sig, .voice-nova .r-role { color: #b0b8d0; }
+  .voice-nova .r-body::before, .voice-nova .r-body::after { content: '◇'; color: #b0b8d0; }
+  .voice-nova h1 { color: #d8dcf0; }
+
+  /* Dimitri — warm lounge amber, road-singer. */
+  .voice-dimitri .r-body {
+    background: linear-gradient(135deg, rgba(55,38,22,0.65), rgba(45,30,18,0.5));
+    border-color: rgba(208,176,112,0.35);
+  }
+  .voice-dimitri .r-divider, .voice-dimitri .r-sig, .voice-dimitri .r-role { color: #d8b070; }
+  .voice-dimitri .r-body::before, .voice-dimitri .r-body::after { content: '✦'; color: #d8b070; }
+  .voice-dimitri h1 { color: #f0c890; }
+
+  /* Henry Evrin — cold steel-blue, formal, slightly off. */
+  .voice-henry .r-body {
+    background: linear-gradient(135deg, rgba(35,40,50,0.7), rgba(28,32,42,0.6));
+    border-color: rgba(180,200,216,0.3);
+  }
+  .voice-henry .r-divider, .voice-henry .r-sig, .voice-henry .r-role { color: #b0c8d8; }
+  .voice-henry .r-body::before, .voice-henry .r-body::after { content: '◇'; color: #b0c8d8; }
+  .voice-henry h1 { color: #d0e0ec; }
+
+  /* Defessus — fireflies, warm twilight, the small witness. */
+  .voice-defessus .r-body {
+    background: linear-gradient(135deg, rgba(45,32,28,0.7), rgba(35,25,22,0.55));
+    border-color: rgba(255,216,128,0.4);
+  }
+  .voice-defessus .r-divider, .voice-defessus .r-sig, .voice-defessus .r-role { color: #ffd880; }
+  .voice-defessus .r-body::before, .voice-defessus .r-body::after { content: '✦'; color: #ffd880; }
+  .voice-defessus h1 { color: #ffe8a8; }
+
+  /* Alstroemeria — pale silvery-green Birchweaver. */
+  .voice-alstroemeria .r-body {
+    background: linear-gradient(135deg, rgba(30,40,35,0.65), rgba(35,45,40,0.5));
+    border-color: rgba(216,224,200,0.35);
+  }
+  .voice-alstroemeria .r-divider, .voice-alstroemeria .r-sig, .voice-alstroemeria .r-role { color: #c0d8b8; }
+  .voice-alstroemeria .r-body::before, .voice-alstroemeria .r-body::after { content: '❦'; color: #c0d8b8; }
+  .voice-alstroemeria h1 { color: #d8e8c8; }
+
+  /* Anilith — deep blue cello, silent vow. */
+  .voice-anilith .r-body {
+    background: linear-gradient(135deg, rgba(22,28,45,0.75), rgba(28,35,52,0.6));
+    border-color: rgba(144,168,208,0.4);
+  }
+  .voice-anilith .r-divider, .voice-anilith .r-sig, .voice-anilith .r-role { color: #90a8d0; }
+  .voice-anilith .r-body::before, .voice-anilith .r-body::after { content: '♪'; color: #90a8d0; }
+  .voice-anilith h1 { color: #b8c8e8; }
+
+  /* Natalia — cold royal silver, the queen. */
+  .voice-natalia .r-body {
+    background: linear-gradient(135deg, rgba(35,35,50,0.7), rgba(30,30,45,0.55));
+    border-color: rgba(216,216,232,0.35);
+  }
+  .voice-natalia .r-divider, .voice-natalia .r-sig, .voice-natalia .r-role { color: #d0d0e0; }
+  .voice-natalia .r-body::before, .voice-natalia .r-body::after { content: '✦'; color: #d0d0e0; }
+  .voice-natalia h1 { color: #e8e8f0; }
+
+  /* Bethwood — quiet olive green, brother-of-Christopher. */
+  .voice-bethwood .r-body {
+    background: linear-gradient(135deg, rgba(35,40,28,0.65), rgba(42,48,35,0.5));
+    border-color: rgba(176,200,160,0.4);
+  }
+  .voice-bethwood .r-divider, .voice-bethwood .r-sig, .voice-bethwood .r-role { color: #b8d098; }
+  .voice-bethwood .r-body::before, .voice-bethwood .r-body::after { content: '✦'; color: #b8d098; }
+  .voice-bethwood h1 { color: #d0e0b8; }
+
+  /* Barnes — warm tan paper, the broker. */
+  .voice-barnes .r-body {
+    background: linear-gradient(135deg, rgba(50,40,28,0.6), rgba(42,32,22,0.5));
+    border-color: rgba(208,184,144,0.35);
+  }
+  .voice-barnes .r-divider, .voice-barnes .r-sig, .voice-barnes .r-role { color: #d8b890; }
+  .voice-barnes .r-body::before, .voice-barnes .r-body::after { content: '❦'; color: #d8b890; }
+  .voice-barnes h1 { color: #ecc8a0; }
+
+  /* Leon — dark red, dangerous, wrong-sweet. */
+  .voice-leon .r-body {
+    background: linear-gradient(135deg, rgba(45,22,22,0.75), rgba(35,18,18,0.6));
+    border-color: rgba(208,96,96,0.4);
+  }
+  .voice-leon .r-divider, .voice-leon .r-sig, .voice-leon .r-role { color: #d06060; }
+  .voice-leon .r-body::before, .voice-leon .r-body::after { content: '◆'; color: #d06060; }
+  .voice-leon h1 { color: #f08080; }
+
+  /* Nicholas — warm whiskey amber bar, paperbacks, the noticer. */
+  .voice-nicholas .r-body {
+    background: linear-gradient(135deg, rgba(50,35,22,0.65), rgba(40,28,18,0.55));
+    border-color: rgba(216,168,96,0.4);
+  }
+  .voice-nicholas .r-divider, .voice-nicholas .r-sig, .voice-nicholas .r-role { color: #d8a868; }
+  .voice-nicholas .r-body::before, .voice-nicholas .r-body::after { content: '❦'; color: #d8a868; }
+  .voice-nicholas h1 { color: #f0c088; }
+
+  /* Dolus — refuses to be known. Barely-there gray. */
+  .voice-dolus .r-body {
+    background: linear-gradient(135deg, rgba(35,35,38,0.5), rgba(40,40,42,0.4));
+    border-color: rgba(160,160,168,0.25);
+  }
+  .voice-dolus .r-divider, .voice-dolus .r-sig, .voice-dolus .r-role { color: #a0a0a8; }
+  .voice-dolus .r-body::before, .voice-dolus .r-body::after { content: '·'; color: #a0a0a8; }
+  .voice-dolus h1 { color: #c0c0c8; }
+
+  /* Glossary page */
+  .glossary-section { margin-top: 3rem; }
+  .glossary-section h2 {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #c8b87a; font-size: 1.5rem; font-weight: 400;
+    text-align: center; letter-spacing: 0.15em;
+    margin-bottom: 0.4rem;
+  }
+  .glossary-section .section-sub {
+    text-align: center; font-style: italic; opacity: 0.65;
+    font-size: 0.92rem; margin-bottom: 1.5rem;
+  }
+  .glossary-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.9rem; max-width: 860px; margin: 0 auto;
+  }
+  .glossary-entry {
+    background: rgba(28,38,26,0.4);
+    border-left: 2px solid rgba(200,184,122,0.4);
+    padding: 1rem 1.2rem; border-radius: 0 3px 3px 0;
+    font-size: 0.95rem; line-height: 1.6;
+  }
+  .glossary-entry .term {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #e8d49a; font-size: 1.15rem; display: block;
+    margin-bottom: 0.3rem;
+  }
+  .glossary-entry .term-alt {
+    font-style: italic; opacity: 0.65; font-size: 0.85rem;
+    margin-left: 0.5rem; color: #b5c4a0;
+  }
+
+  /* Timeline page */
+  .timeline {
+    max-width: 740px; margin: 3rem auto 0;
+    position: relative; padding-left: 2.5rem;
+  }
+  .timeline::before {
+    content: ''; position: absolute;
+    left: 0.6rem; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(180deg,
+      rgba(200,184,122,0.05), rgba(200,184,122,0.5) 10%,
+      rgba(200,184,122,0.5) 90%, rgba(200,184,122,0.05));
+  }
+  .timeline-entry {
+    position: relative; margin-bottom: 2.5rem;
+    padding-left: 0.5rem;
+  }
+  .timeline-entry::before {
+    content: '❦'; position: absolute;
+    left: -2.4rem; top: 0.2rem;
+    color: #c8b87a; font-size: 1.2rem;
+    background: #1a2118; padding: 0 0.2rem;
+  }
+  .timeline-era {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #c8b87a; font-size: 0.9rem; letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.3rem;
+  }
+  .timeline-entry h3 {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #e8d49a; font-size: 1.5rem; font-weight: 400;
+    margin-bottom: 0.6rem;
+  }
+  .timeline-entry p {
+    font-size: 1.02rem; line-height: 1.7; margin-bottom: 0.6rem;
+    opacity: 0.92;
+  }
+  .timeline-entry p:last-child { margin-bottom: 0; }
+  .timeline-entry em { color: #d8c896; }
+
+  /* World page */
+  .realm-block {
+    background: rgba(28,38,26,0.5); border: 1px solid rgba(200,184,122,0.2);
+    padding: 2rem; margin-bottom: 1.5rem; border-radius: 3px;
+  }
+  .realm-block h3 {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #e8d49a; font-size: 1.8rem; margin-bottom: 0.5rem; font-weight: 400;
+  }
+
+  /* Track block */
+  .track {
+    background: rgba(28,38,26,0.6); border: 1px solid rgba(200,184,122,0.25);
+    padding: 1.6rem; margin: 1.2rem 0; border-radius: 3px;
+    display: flex; align-items: center; gap: 1.5rem; transition: border-color 0.3s;
+  }
+  .track:hover { border-color: rgba(200,184,122,0.5); }
+  .play-button {
+    width: 52px; height: 52px; border-radius: 50%; background: #c8b87a;
+    color: #1a2118; border: none; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; flex-shrink: 0;
+    transition: all 0.2s; font-size: 1.2rem;
+  }
+  .play-button:hover { transform: scale(1.08); background: #d8c88a; }
+  .track-info h3 {
+    font-family: 'IM Fell English', serif; font-size: 1.5rem;
+    color: #e8d49a; margin-bottom: 0.2rem; font-style: italic;
+  }
+  .track-info .by { font-size: 0.95rem; opacity: 0.7; font-style: italic; }
+
+  /* About page */
+  .about-block {
+    background: rgba(28,38,26,0.5); border: 1px solid rgba(200,184,122,0.2);
+    padding: 2.5rem; border-radius: 3px;
+  }
+
+  /* Footer */
+  footer {
+    padding: 3rem 2rem; text-align: center; position: relative; z-index: 2;
+    font-family: 'IM Fell English', serif; font-size: 1rem; opacity: 0.55;
+    border-top: 1px solid rgba(200,184,122,0.15); font-style: italic; margin-top: 4rem;
+  }
+  footer p { margin-bottom: 0.4rem; }
+  .footer-ornament { color: #c8b87a; opacity: 0.6; margin-bottom: 0.8rem; letter-spacing: 1em; padding-left: 1em; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
+    nav ul { gap: 1.2rem; flex-wrap: wrap; }
+    nav a { font-size: 0.9rem; }
+    nav .brand { font-size: 1.2rem; }
+    .container, .raconteur-page { padding: 2.5rem 1.5rem; }
+    .page-title { font-size: 2.2rem; }
+    .raconteur-page h1 { font-size: 2.8rem; }
+    .raconteur-page .r-body { padding: 1.5rem; }
+    .track { flex-direction: column; text-align: center; }
+  }
+
+  /* Read page — sections + chapter cards */
+  .read-section { margin-top: 3.5rem; }
+  .read-section-label {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #c8b87a; opacity: 0.85; font-size: 1.4rem;
+    text-align: center; letter-spacing: 0.15em; margin-bottom: 0.4rem;
+  }
+  .read-section-sub {
+    text-align: center; font-style: italic; opacity: 0.65;
+    font-size: 0.95rem; margin-bottom: 2rem; max-width: 540px;
+    margin-left: auto; margin-right: auto;
+  }
+  .chapter-grid {
+    display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+    max-width: 720px; margin: 0 auto;
+  }
+  .chapter-card {
+    background: linear-gradient(180deg, rgba(45,60,38,0.5), rgba(28,38,26,0.85));
+    border: 1px solid rgba(200,184,122,0.2);
+    padding: 1.8rem 2rem; border-radius: 3px;
+    cursor: pointer; transition: all 0.3s; position: relative;
+  }
+  .chapter-card::before {
+    content: '❦'; position: absolute; top: 0.9rem; right: 1.2rem;
+    color: #c8b87a; opacity: 0.4; font-size: 1rem; transition: opacity 0.3s;
+  }
+  .chapter-card:hover {
+    border-color: rgba(200,184,122,0.6); transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .chapter-card:hover::before { opacity: 0.9; }
+  .chapter-card.coming-soon {
+    cursor: default; opacity: 0.6;
+  }
+  .chapter-card.coming-soon:hover {
+    transform: none; box-shadow: none;
+    border-color: rgba(200,184,122,0.2);
+  }
+  .chapter-card .chapter-meta {
+    font-family: 'IM Fell English', serif; font-size: 0.85rem;
+    color: #b5c4a0; opacity: 0.85; font-style: italic;
+    margin-bottom: 0.5rem; letter-spacing: 0.02em;
+  }
+  .chapter-card h3 {
+    font-family: 'IM Fell English', serif; font-size: 1.6rem;
+    color: #e8d49a; margin: 0 0 0.8rem; font-weight: normal;
+  }
+  .chapter-card .chapter-summary {
+    font-size: 0.95rem; line-height: 1.6; opacity: 0.85;
+    margin: 0 0 1rem;
+  }
+  .chapter-card .chapter-status {
+    font-family: 'IM Fell English', serif; font-size: 0.8rem;
+    color: #c8b87a; opacity: 0.7; font-style: italic;
+    letter-spacing: 0.04em;
+  }
+
+  /* Reader page — for opened chapters/vignettes */
+  .reader {
+    max-width: 720px; margin: 0 auto; padding: 4rem 2rem;
+    position: relative; z-index: 2;
+  }
+  .reader .back-link {
+    font-family: 'IM Fell English', serif; font-style: italic; font-size: 1rem;
+    color: #b5c4a0; opacity: 0.75; cursor: pointer; text-decoration: none;
+    display: inline-block; margin-bottom: 2.5rem; transition: opacity 0.2s;
+  }
+  .reader .back-link:hover { opacity: 1; color: #c8b87a; }
+  .reader .reader-label {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #b5c4a0; opacity: 0.85; font-size: 1rem;
+    letter-spacing: 0.15em; text-align: center; margin-bottom: 0.5rem;
+  }
+  .reader h1 {
+    font-family: 'IM Fell English', serif; font-size: 3rem;
+    color: #e8d49a; text-align: center; font-weight: 400;
+    font-style: italic; line-height: 1.1; margin-bottom: 0.6rem;
+  }
+  .reader .reader-meta {
+    text-align: center; opacity: 0.7; font-style: italic;
+    font-size: 1rem; margin-bottom: 0.4rem;
+  }
+  .reader .reader-divider {
+    text-align: center; color: #c8b87a; opacity: 0.5;
+    font-size: 1.3rem; margin: 2rem 0 2.5rem;
+    letter-spacing: 1em; padding-left: 1em;
+  }
+  .content-note {
+    background: rgba(80,60,45,0.25); border-left: 2px solid rgba(200,140,100,0.5);
+    padding: 1.1rem 1.4rem; margin: 0 auto 2.5rem; max-width: 620px;
+    border-radius: 2px; font-size: 0.95rem; line-height: 1.6;
+  }
+  .content-note strong {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #d4a878; letter-spacing: 0.05em; display: block; margin-bottom: 0.3rem;
+  }
+  .reader-body {
+    background: rgba(28,38,26,0.4); border: 1px solid rgba(200,184,122,0.2);
+    padding: 2.5rem; border-radius: 3px; position: relative;
+  }
+  .reader-body::before, .reader-body::after {
+    content: '❦'; position: absolute; color: #c8b87a; opacity: 0.4; font-size: 1.2rem;
+  }
+  .reader-body::before { top: 0.6rem; left: 1rem; }
+  .reader-body::after { bottom: 0.6rem; right: 1rem; transform: rotate(180deg); }
+  .reader-body p { font-size: 1.1rem; margin-bottom: 1.1rem; color: #e0d8c0; line-height: 1.75; }
+  .reader-body p:last-child { margin-bottom: 0; }
+  .reader-body .scene-break {
+    text-align: center; color: #c8b87a; opacity: 0.5;
+    font-size: 1.2rem; margin: 2rem 0;
+    letter-spacing: 1em; padding-left: 1em;
+  }
+  .reader-body .pov-marker {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #b5c4a0; opacity: 0.85; font-size: 0.95rem;
+    text-align: center; letter-spacing: 0.1em;
+    margin: 2.5rem 0 1.5rem; text-transform: uppercase;
+  }
+  .reader-body em { color: #d8c896; }
+  .reader .reader-sig {
+    text-align: right; font-style: italic; color: #c8b87a;
+    margin-top: 1.5rem; font-size: 1.05rem;
+  }
+
+  /* Latest widget on home */
+  .latest-widget {
+    max-width: 520px; margin: 3.5rem auto 0;
+    background: rgba(28,38,26,0.5); border: 1px solid rgba(200,184,122,0.25);
+    border-radius: 3px; padding: 1.6rem 1.8rem; position: relative;
+    cursor: pointer; transition: all 0.3s;
+  }
+  .latest-widget:hover {
+    border-color: rgba(200,184,122,0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .latest-label {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #c8b87a; opacity: 0.75; font-size: 0.85rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .latest-title {
+    font-family: 'IM Fell English', serif; font-size: 1.5rem;
+    color: #e8d49a; margin-bottom: 0.4rem; font-style: italic;
+  }
+  .latest-sub {
+    font-style: italic; opacity: 0.75; font-size: 0.95rem;
+  }
+  .latest-arrow {
+    position: absolute; right: 1.5rem; top: 50%;
+    transform: translateY(-50%); color: #c8b87a; opacity: 0.6;
+    font-size: 1.2rem; transition: all 0.3s;
+  }
+  .latest-widget:hover .latest-arrow { opacity: 1; transform: translateY(-50%) translateX(3px); }
+
+  /* "New here" link in nav */
+  nav .new-here {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    font-size: 0.85rem; color: #b5c4a0; opacity: 0.7;
+    margin-left: 0.8rem; padding: 0.2rem 0.7rem;
+    border: 1px solid rgba(181,196,160,0.3); border-radius: 2px;
+    cursor: pointer; transition: all 0.3s;
+  }
+  nav .new-here:hover {
+    opacity: 1; color: #c8b87a; border-color: rgba(200,184,122,0.6);
+  }
+
+  /* Explainer page */
+  .explainer-block {
+    background: rgba(28,38,26,0.4); border-left: 2px solid rgba(200,184,122,0.4);
+    padding: 1.5rem 1.8rem; margin-bottom: 1.5rem;
+    border-radius: 0 3px 3px 0;
+  }
+  .explainer-block h3 {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #e8d49a; font-size: 1.4rem; font-weight: 400;
+    margin-bottom: 0.6rem;
+  }
+  .explainer-block p { font-size: 1.05rem; line-height: 1.7; opacity: 0.92; }
+  .start-here {
+    margin-top: 2.5rem; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .start-card {
+    background: rgba(45,60,38,0.4); border: 1px solid rgba(200,184,122,0.25);
+    padding: 1.4rem; border-radius: 3px; cursor: pointer;
+    transition: all 0.3s; text-align: center;
+  }
+  .start-card:hover {
+    border-color: rgba(200,184,122,0.6); transform: translateY(-3px);
+    background: rgba(45,60,38,0.6);
+  }
+  .start-card .start-title {
+    font-family: 'IM Fell English', serif; font-style: italic;
+    color: #e8d49a; font-size: 1.2rem; margin-bottom: 0.3rem;
+  }
+  .start-card .start-sub {
+    font-size: 0.9rem; opacity: 0.75; font-style: italic;
+  }
+
+  /* Map page */
+  .map-frame {
+    margin: 3rem auto 2rem; max-width: 900px;
+    border: 1px solid rgba(200,184,122,0.3);
+    padding: 0.8rem; background: rgba(28,38,26,0.4);
+    border-radius: 3px; position: relative;
+  }
+  .map-image {
+    display: block; width: 100%; height: auto;
+    border-radius: 2px;
+  }
+  .map-key {
+    max-width: 720px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr; gap: 0.9rem;
+  }
+  .map-key-item {
+    padding: 1rem 1.2rem;
+    border-left: 2px solid rgba(200,184,122,0.4);
+    background: rgba(45,60,38,0.25);
+    font-size: 0.95rem; line-height: 1.6;
+  }
+  .map-key-item strong {
+    color: #e8d49a; font-family: 'IM Fell English', serif;
+    font-weight: normal; letter-spacing: 0.02em;
+  }
+  .map-caption {
+    text-align: center; opacity: 0.7;
+    font-family: 'IM Fell English', serif; font-style: italic;
+    margin-top: 2.5rem; font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="leaves" id="leaves"></div>
+<div class="voice-ambient" id="voiceAmbient"></div>
+
+<nav>
+  <a class="brand" onclick="goTo('home')">Amberlore</a>
+  <ul>
+    <li><a onclick="goTo('home')">Home</a></li>
+    <li><a onclick="goTo('world')">The World</a></li>
+    <li><a onclick="goTo('voices')">Voices</a></li>
+    <li><a onclick="goTo('interludes')">Interludes</a></li>
+    <li><a onclick="goTo('songs')">Songs</a></li>
+    <li><a onclick="goTo('read')">Read</a></li>
+    <li><a onclick="goTo('map')">Map</a></li>
+    <li><a onclick="goTo('timeline')">Timeline</a></li>
+    <li><a onclick="goTo('glossary')">Glossary</a></li>
+    <li><a onclick="goTo('process')">Process</a></li>
+    <li><a onclick="goTo('about')">About</a></li>
+    <li><a class="new-here" onclick="goTo('start')">new here?</a></li>
+  </ul>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-ornament">❦ ❦ ❦</div>
+    <div class="hero-mark">a song-cycle in progress</div>
+    <h1>AMBERLORE</h1>
+    <div class="subtitle">a legendarium of nineteen voices</div>
+    <div class="author">by Baird Lupine</div>
+    <button class="hero-enter" onclick="goTo('voices')">Meet the voices ❦</button>
+
+    <div class="latest-widget" id="latest-widget" onclick="goToLatest()">
+      <div class="latest-label">Newest</div>
+      <div class="latest-title" id="latest-title">—</div>
+      <div class="latest-sub" id="latest-sub">—</div>
+      <div class="latest-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- START / NEW HERE -->
+<div class="page" id="page-start">
+  <div class="container">
+    <div class="page-label">First time here?</div>
+    <h1 class="page-title">Welcome</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">AMBERLORE is a multimedia song-cycle and legendarium being built by Baird Lupine — songs, prose chapters, character bibles, a hand-drawn map, and a kingdom called Lupinous. This is a quick tour.</p>
+
+    <div class="explainer-block">
+      <h3>What is it?</h3>
+      <p>A song-cycle told by nineteen narrators called <em>raconteurs</em>, each with their own song and prose chapter, plus twelve interludes for the people in between. The whole thing is set in a world called Altalune, made by a creator-god named Saturn who used to be a bullied teenager from a planet that no longer exists. There is a prophecy. There is a kingdom. There is a girl who does not know what she is.</p>
+    </div>
+
+    <div class="explainer-block">
+      <h3>Who's behind it?</h3>
+      <p>Baird Lupine — a thirteen-year-old writer working on her first long project. AMBERLORE has been in development for years, in notebooks and on guitar and in hand-drawn maps. This site is the place it lives now while it grows.</p>
+    </div>
+
+    <div class="explainer-block">
+      <h3>What's already here?</h3>
+      <p>Six completed songs on guitar and vocals. Character bibles for all nineteen raconteurs and several interludes. A hand-drawn map. The opening of Silvia's chapter and Christopher's chapter. Side vignettes that live outside the spine of the legendarium. More arrives every month.</p>
+    </div>
+
+    <div class="explainer-block">
+      <h3>Where should I start?</h3>
+      <p>Pick whichever door is yours.</p>
+    </div>
+
+    <div class="start-here">
+      <div class="start-card" onclick="goTo('voices')">
+        <div class="start-title">The Voices</div>
+        <div class="start-sub">meet the nineteen narrators</div>
+      </div>
+      <div class="start-card" onclick="goTo('world')">
+        <div class="start-title">The World</div>
+        <div class="start-sub">Altalune, in three realms</div>
+      </div>
+      <div class="start-card" onclick="goTo('read')">
+        <div class="start-title">Read</div>
+        <div class="start-sub">chapters and vignettes</div>
+      </div>
+      <div class="start-card" onclick="goTo('map')">
+        <div class="start-title">The Map</div>
+        <div class="start-sub">Lupinous, hand-drawn</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WORLD -->
+<div class="page" id="page-world">
+  <div class="container">
+    <div class="page-label">The World</div>
+    <h1 class="page-title">Altalune</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">A world spun from the stories a bullied teenager wrote on a dying planet, before he became a god and remade his words into a kingdom.</p>
+
+    <div class="realm-block">
+      <h3>Altalune</h3>
+      <p>The world Saturn created. The kingdom of Lupinous is its named heart — Mysthaven and its castle, Timberton with its clocktower, Drearhollow deep in the Susurra Woods, Noctis Bay along the coast. Mortals, Valoyi, Sixrines, and Specters walk here. Souls persist across lifetimes; bodies change.</p>
+    </div>
+    <div class="realm-block">
+      <h3>The In-Between</h3>
+      <p>Older than Altalune. Tended by Alstroemeria the Birchweaver, who was before the world began. Souls come here after death — they wait, they catch up with each other, they are reborn when they are ready. None refuse the return, but none are rushed.</p>
+    </div>
+    <div class="realm-block">
+      <h3>Oritaria</h3>
+      <p>Mordai Temerity's underworld. Cold, dark, never gentle. Souls only arrive here through bargain — Mordai cannot take what was not given. He has fiery hair and red eyes and horns, and no one has seen him. The Specters are those who have been here and come back marked.</p>
+    </div>
+
+    <p style="margin-top: 2rem;">Faiths in Lupinous read this cosmology differently. Vattalians believe in rebirth as the natural order. Twilists are monotheistic and forbid romance before twenty. Fountists take vows of musicality and bond their souls to a single instrument for life. Sixrines hunt the Grimoire of Old Magic, as they have since the First Age.</p>
+  </div>
+</div>
+
+<!-- SONGS -->
+<div class="page" id="page-songs">
+  <div class="container">
+    <div class="page-label">Songs</div>
+    <h1 class="page-title">The Cycle</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">Nineteen raconteurs sing themselves into being, one voice at a time. Twelve interludes hold the breathing between them. Saturn writes the prefaces.</p>
+    <div class="track">
+      <button class="play-button">▶</button>
+      <div class="track-info"><h3>Plena Luna</h3><div class="by">Archemoros — Vattalea of Nightmares & the Moon</div></div>
+    </div>
+    <div class="track">
+      <button class="play-button">▶</button>
+      <div class="track-info"><h3>Torrential</h3><div class="by">Reika — Vattalea of Rain, Weather, and Music</div></div>
+    </div>
+    <div class="track">
+      <button class="play-button">▶</button>
+      <div class="track-info"><h3>Clipped</h3><div class="by">Naomi — Princess of Mysthaven</div></div>
+    </div>
+    <div class="track">
+      <button class="play-button">▶</button>
+      <div class="track-info"><h3>The Shape of Silence</h3><div class="by">Silvia — The Monster</div></div>
+    </div>
+    <div class="track">
+      <button class="play-button">▶</button>
+      <div class="track-info"><h3>Confession</h3><div class="by">Charlotte — The Magician</div></div>
+    </div>
+    <div class="track">
+      <button class="play-button">▶</button>
+      <div class="track-info"><h3>Hark!</h3><div class="by">The Overture — all voices</div></div>
+    </div>
+    <p style="opacity: 0.7; font-style: italic; text-align: center; margin-top: 2rem;">More songs in progress.</p>
+  </div>
+</div>
+
+<!-- VOICES INDEX -->
+<div class="page" id="page-voices">
+  <div class="container">
+    <div class="page-label">Voices</div>
+    <h1 class="page-title">The Raconteurs</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">Each voice carries its own weather. Each page is written by the voice it belongs to.</p>
+    <div class="voices-grid" id="voicesGrid"></div>
+  </div>
+</div>
+
+<!-- INDIVIDUAL RACONTEUR PAGE -->
+<div class="page" id="page-voice">
+  <div class="raconteur-page" id="raconteurContent">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<!-- INTERLUDES INDEX -->
+<div class="page" id="page-interludes">
+  <div class="container">
+    <div class="page-label">Interludes</div>
+    <h1 class="page-title">The Breathing Between</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">Twelve figures who do not sing the cycle but whose voices hold the space between songs. Each speaks once.</p>
+    <div class="voices-grid" id="interludesGrid"></div>
+  </div>
+</div>
+
+<!-- INDIVIDUAL INTERLUDE PAGE -->
+<div class="page" id="page-interlude">
+  <div class="raconteur-page" id="interludeContent"></div>
+</div>
+
+<!-- READ -->
+<div class="page" id="page-read">
+  <div class="container">
+    <div class="page-label">Read</div>
+    <h1 class="page-title">Reading</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">The legendarium becomes prose one piece at a time. Canon chapters and side vignettes both live here.</p>
+
+    <div class="read-section">
+      <div class="read-section-label">Chapters</div>
+      <div class="read-section-sub">The canonical raconteur prose. Each chapter is told by the voice it belongs to.</div>
+      <div class="chapter-grid" id="chapters-grid"></div>
+    </div>
+
+    <div class="read-section">
+      <div class="read-section-label">Vignettes</div>
+      <div class="read-section-sub">Side pieces. Moments outside the spine. Sometimes canon-adjacent, sometimes wishful.</div>
+      <div class="chapter-grid" id="vignettes-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- READER (for opening individual pieces) -->
+<div class="page" id="page-reader">
+  <div class="reader" id="reader-content">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="page" id="page-map">
+  <div class="container">
+    <div class="page-label">Map</div>
+    <h1 class="page-title">Lupinous</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">The kingdom, hand-drawn. Mysthaven at its heart, Timberton to the north with its clocktower, Drearhollow lost in the Susurra Woods, Noctis Bay along the coast.</p>
+
+    <div class="map-frame">
+      <div class="map-image-wrapper" id="mapWrapper">
+        <img src="lupinous-map.png" alt="Hand-drawn map of Lupinous" class="map-image" id="mapImage">
+        <div class="map-hint">click to zoom · drag to pan</div>
+      </div>
+    </div>
+
+    <div class="map-key">
+      <div class="map-key-item"><strong>Mysthaven</strong> — the capital. Castle, bar, East Tower. Most of the story happens here.</div>
+      <div class="map-key-item"><strong>Timberton</strong> — northern town. Christopher's home. The clocktower keeps the time.</div>
+      <div class="map-key-item"><strong>Drearhollow</strong> — deep in the Susurra Woods. The kind of place you do not find unless it lets you.</div>
+      <div class="map-key-item"><strong>Noctis Bay</strong> — the coast. Salt air. Fishing villages. Where the In-Between brushes closest.</div>
+      <div class="map-key-item"><strong>Susurra Woods</strong> — the great forest. Sixrines have hidden here. Silvia has too.</div>
+      <div class="map-key-item"><strong>The Firefly Tree</strong> — neither shown nor not shown. Defessus knows where it is.</div>
+    </div>
+
+    <p class="map-caption">Drawn by Baird Lupine. The kingdom is still being mapped.</p>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="page" id="page-timeline">
+  <div class="container">
+    <div class="page-label">Timeline</div>
+    <h1 class="page-title">The Long Unfolding</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">The cosmology of Altalune, told in order. From before the world to the war that comes after the song-cycle.</p>
+
+    <div class="timeline">
+      <div class="timeline-entry">
+        <div class="timeline-era">Before time</div>
+        <h3>The In-Between</h3>
+        <p>Older than Altalune. Alstroemeria the Birchweaver tends it. Souls who die come here to rest before being reborn. None are rushed. None refuse the return.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">Cerulean's end</div>
+        <h3>The boy who became a god</h3>
+        <p>Lyra Zenith Rinne was a bullied teenage outcast on the planet Cerulean. He wrote stories for solace. Cerulean exploded. He woke in the In-Between.</p>
+        <p>Alstroemeria pitied him and transformed him into Vattalea Saturn — the Creator. Using the pre-written stories of his mortal life as a blueprint, Saturn wove the world of Altalune.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">The First Age</div>
+        <h3>The slate, wiped</h3>
+        <p>Saturn watched what his stories had become. Disappointed, he wiped the slate. The First Age ended. The Sixrines — an ancient order who worked with Old Magic — existed in this age, and most of them are gone now.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">The Three</div>
+        <h3>The Desrosiers siblings</h3>
+        <p>Three traveling musicians became the first new Vattalea after Saturn's anger had cleared. <em>Jackson</em> on lute and vocals drowned and became Vita, Vattalea of the Sun and Life. <em>Leah</em> on violin was poisoned and became Reika, Vattalea of Rain and Weather. <em>Annabelle</em> on pan flute died in a rockslide and became Archemoros, Vattalea of Nightmares and the Moon.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">The Second Age</div>
+        <h3>The Valoyi arrive</h3>
+        <p>Mortals whose powers bond to a specific trait or emotion — Ashlin's art-magic activates when she thinks of something happy; Vyne's growth-magic sprouts when they get nervous; Silvia's chains rise when love and rage twist into one.</p>
+        <p>The Sixrines come back into the light. Katarina Liadon, one of the last remaining, finds a Grimoire that contains only the prophecy. She becomes Fenris of Jaxon Hill, the Terror, and begins the hunt.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">The Trials</div>
+        <h3>The wrong child trained</h3>
+        <p>Fenris was the political architect of the Valoyi Trials. Believing the prophecy's child must be a Valoyi, she manipulated the kingdom of Lupinous into participating in the mass-burning of suspected Valoyi children. Many died. <em>Sarah Nilrilith was one of them.</em></p>
+        <p>Sarah's spirit became Defessus, the small witness, who now inhabits the Firefly Tree. Silvia was taken in by Fenris and trained as if she were the prophesied child. The training was extractive; Silvia became a destructive monster instead of the soul-offering child the verse promised. <em>The wrong child was trained.</em></p>
+        <p>The right child — Roxanne — remained unseen, hidden in an orphanage no one in the kingdom would think to look at.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">Twelve years before now</div>
+        <h3>Christopher counts stars</h3>
+        <p>Christopher Holloway, seventeen, in Timberton with his older brother Bethwood. The events of his chapter "Catching Falling Stars" take place here.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">Five years before now</div>
+        <h3>The Golden Swan</h3>
+        <p>Silvia, twelve, and Sarah, eight, arrive at the Golden Swan in Mysthaven after fleeing Drearhollow. Kaiso Lunar takes them in. Silvia meets Ashlin — five years before Ashlin will ever meet Silver.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">A year before now</div>
+        <h3>The castle, the bond, the loss</h3>
+        <p>Silvia is sent undercover to assassinate Queen Natalia Everglade of Mysthaven. The mission fails, but Christopher hides her during her months in the castle — which is how their bond forms.</p>
+        <p>Sometime during her castle years, Silvia accidentally kills Kaiso. She does not yet know that her older sister Silver killed their parents.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">Now</div>
+        <h3>AMBERLORE</h3>
+        <p>The song-cycle. Leon Lekha Arthur kills Christopher in a storage closet of the castle. Silvia binds Leon to the clock on the front of Mysthaven Castle in purple chains — protection that came too late, made manifest — for the kingdom to see. She walks into the burning castle.</p>
+        <p>Henry Evrin duels Silver and shoots her left eye out. Indigo names herself Silver three times on the floor of a rented house; Ashlin arrives and names her Silver three times within thirty seconds.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">In Symphon (Act Two)</div>
+        <h3>The lives braid together</h3>
+        <p>After the origin chapters end, the raconteurs' lives intersect. Nick and Silvia meet at a bar in lower Mysthaven and slowly build a life. <em>To Breathe in a Billow of Smoke</em> is their novella. Silvia and Nick eventually almost-adopt Calliope, Vyne, and Lilac Evans — chosen family with no paperwork, arrived at through small daily choices. Christopher is dead by then, but Silvia carries him in her hallucinations, and later meets his Vattalea form: Nerondil.</p>
+        <p>Other raconteurs braid in their own ways. The ensemble movement holds each intersection as its own piece.</p>
+      </div>
+
+      <div class="timeline-entry">
+        <div class="timeline-era">Attingere (Act Three)</div>
+        <h3>The gathering, the war</h3>
+        <p>The nineteen raconteurs are planned to meet — Heroes of Olympus-style — to face an antagonist still being shaped. Roxanne is expected to discover what she is in that book, not the earlier ones.</p>
+        <p>The song-cycle assembles the souls. The novellas braid them together. The sequel makes them fight.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GLOSSARY -->
+<div class="page" id="page-glossary">
+  <div class="container">
+    <div class="page-label">Glossary</div>
+    <h1 class="page-title">A Small Dictionary</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">The cosmology of Altalune has its own words for things. Here is a small dictionary of the ones that matter.</p>
+
+    <div class="glossary-section">
+      <h2>The Realms</h2>
+      <div class="section-sub">There are three.</div>
+      <div class="glossary-grid">
+        <div class="glossary-entry"><span class="term">Altalune</span>The world Saturn created. The kingdom of Lupinous is its named heart. Where most of AMBERLORE takes place.</div>
+        <div class="glossary-entry"><span class="term">The In-Between</span>Older than Altalune. Tended by Alstroemeria the Birchweaver. Souls who die come here to rest before being reborn — neither rewarding nor punishing, simply pausing. Even the Vattalea will eventually return.</div>
+        <div class="glossary-entry"><span class="term">Oritaria</span>Mordai Temerity's underworld. Souls only end up here via bargain — Mordai cannot take a soul, only trade for one. The Specters are those who have been here and returned, marked.</div>
+      </div>
+    </div>
+
+    <div class="glossary-section">
+      <h2>Peoples &amp; Magic</h2>
+      <div class="section-sub">The kinds of beings in the cosmology.</div>
+      <div class="glossary-grid">
+        <div class="glossary-entry"><span class="term">Vattalea</span>The gods of the cosmology — mortals who died and were given work, holding cosmological domains, guiding others. Saturn, Vita, Reika, Archemoros, Defessus. Not a reward, a job.</div>
+        <div class="glossary-entry"><span class="term">Valoyi</span>Mortals whose powers bond to a specific emotion or trait. The power can only be summoned when the feeling is reached. Ashlin (joy), Vyne (anxiety), Silvia (love-and-rage).</div>
+        <div class="glossary-entry"><span class="term">Sixrines</span>An ancient order that existed in the First Age and worked with Old Magic. Most are gone. Fenris of Jaxon Hill — once Katarina Liadon — is one of the last.</div>
+        <div class="glossary-entry"><span class="term">Specters</span>Those who bargained with The Firebringer and were transformed by the cost. They have been to Oritaria and returned, marked.</div>
+        <div class="glossary-entry"><span class="term">Nightwalkers</span>Beings of the nightmare realm. Archemoros is the Prime Nightwalker.</div>
+      </div>
+    </div>
+
+    <div class="glossary-section">
+      <h2>Faiths</h2>
+      <div class="section-sub">Religions in Lupinous read the cosmology differently.</div>
+      <div class="glossary-grid">
+        <div class="glossary-entry"><span class="term">Vattalians</span>The mainstream faith of Lupinous. Believe straightforwardly in rebirth via the In-Between.</div>
+        <div class="glossary-entry"><span class="term">Twilists</span>The faith of the Holloway family. Forbid romantic relationships before age twenty. Rooted in a belief that young souls need time to settle into their new bodies before bonding.</div>
+        <div class="glossary-entry"><span class="term">Fountists</span>People who have pledged their lives to the spirits of the caves and taken a vow of musicality. Each chooses one specific instrument at the moment of their vow, and the bond is irrevocable — for the eternal soul, not just this body. Homeland is Caliant.</div>
+      </div>
+    </div>
+
+    <div class="glossary-section">
+      <h2>Places</h2>
+      <div class="section-sub">A small atlas.</div>
+      <div class="glossary-grid">
+        <div class="glossary-entry"><span class="term">Lupinous</span>The kingdom where most of AMBERLORE takes place.</div>
+        <div class="glossary-entry"><span class="term">Mysthaven</span>The capital. Castle, royal seat, the bar.</div>
+        <div class="glossary-entry"><span class="term">Drearhollow</span>The Nilrilith manor, deep in the Susurra Woods. The kind of place you do not find unless it lets you.</div>
+        <div class="glossary-entry"><span class="term">Susurra Woods</span>The great forest. Sixrines have hidden here. Silvia has too.</div>
+        <div class="glossary-entry"><span class="term">Timberton</span>A small inland town. Christopher's hometown.</div>
+        <div class="glossary-entry"><span class="term">Noctis Bay</span>Coastal city of stars. Where Ruby Rose lives.</div>
+        <div class="glossary-entry"><span class="term">Jaxon Hill</span>Fenris's seat, on a cloud-cluster.</div>
+        <div class="glossary-entry"><span class="term">Jheria</span>Ashlin's homeland, southwest of Lupinous beyond the South Sea.</div>
+        <div class="glossary-entry"><span class="term">Caliant</span>The homeland of the Fountists.</div>
+        <div class="glossary-entry"><span class="term">Cerulean</span>The world from which Saturn (then Lyra Zenith Rinne) came. It exploded. Cerulean is gone.</div>
+        <div class="glossary-entry"><span class="term">The Firefly Tree</span>Where Defessus lives now. The tree from her favorite childhood fairy tale, which became her literal entry-point to godhood.</div>
+      </div>
+    </div>
+
+    <div class="glossary-section">
+      <h2>Concepts &amp; Things</h2>
+      <div class="section-sub">Words for the things that matter.</div>
+      <div class="glossary-grid">
+        <div class="glossary-entry"><span class="term">The Prophecy</span>Found by Katarina Liadon (Fenris) in a Grimoire that contained only this one verse. The engine of AMBERLORE. Names a child between stardom and solace — Roxanne, though no one knows.</div>
+        <div class="glossary-entry"><span class="term">The Valoyi Trials</span>Fenris's mass-burning of suspected Valoyi children, framed as cultural sanctification, run with the consent of the political class. Sarah Nilrilith died here.</div>
+        <div class="glossary-entry"><span class="term">Hark!</span>The overture of the song-cycle. Saturn alternates spoken and sung registers. Each of the nineteen raconteurs receives a two-line couplet. The chorus ends with one final line: Saturn only.</div>
+        <div class="glossary-entry"><span class="term">The Firebringer</span><span class="term-alt">Mordai Temerity</span>The underworld dealer whose bargains made the Specters. His name is not safely spoken aloud — the warding gesture is a finger drawn clockwise around the corners of one's mouth. The likely antagonist of the sequel.</div>
+        <div class="glossary-entry"><span class="term">Memento Protocol</span>The practice of writing things down so that they can be returned to. The legendarium document is built on it.</div>
+        <div class="glossary-entry"><span class="term">Ligamen Ardoris</span><span class="term-alt">Bond of Passion</span>Silvia's chains. They rise from her grief; their color, purple, is the color of protection in her world — protection she could not give in time, made manifest too late.</div>
+        <div class="glossary-entry"><span class="term">Circleans</span>The currency of Lupinous.</div>
+        <div class="glossary-entry"><span class="term">The Festival of Ignira</span>A kingdom-wide celebration that draws families to Mysthaven. Schooling pauses during its week.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROCESS / BEHIND THE SCENES -->
+<div class="page" id="page-process">
+  <div class="container">
+    <div class="page-label">Process</div>
+    <h1 class="page-title">Behind the Scenes</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <p class="lead">A legendarium is built slowly, in many forms, over years. Here is some of what goes into AMBERLORE underneath the surface.</p>
+
+    <div class="stats-row">
+      <div class="stat-block"><div class="stat-num">19</div><div class="stat-label">raconteurs</div></div>
+      <div class="stat-block"><div class="stat-num">12</div><div class="stat-label">interludes</div></div>
+      <div class="stat-block"><div class="stat-num">6</div><div class="stat-label">songs completed</div></div>
+      <div class="stat-block"><div class="stat-num">3</div><div class="stat-label">realms</div></div>
+    </div>
+
+    <div class="process-section">
+      <h3>The shape of a song-cycle</h3>
+      <p>AMBERLORE is structured as a song-cycle in the lineage of <em>Yaelokre</em> by Cole Seymour — a built world with characters who each get their own song, framed by a narrator-creator. The overture <em>Hark!</em> opens the cycle, with each raconteur receiving a two-line couplet in Saturn's voice. Then each raconteur gets a full song and a prose chapter. The twelve interludes hold the breathing between.</p>
+      <p>Six songs are completed on guitar and vocals: <em>Hark!</em>, <em>Torrential</em> (Reika), <em>Plena Luna</em> (Archemoros), <em>Clipped</em> (Naomi), <em>The Shape of Silence</em> (Silvia), and <em>Confession</em> (Charlotte). Thirteen more raconteur songs are to come.</p>
+    </div>
+
+    <div class="process-section">
+      <h3>The Memento Protocol</h3>
+      <p>The legendarium document — the master file that holds the cosmology, the prophecy, the map, the overture, the raconteur bibles, and the prose chapters as they're drafted — is named for a practice: <em>writing things down so that they can be returned to.</em> Like the Appendices to Tolkien or <em>The Silmarillion</em> alongside its parent work, the legendarium is the externalized memory of the project.</p>
+      <blockquote>This document will be updated as AMBERLORE grows.</blockquote>
+    </div>
+
+    <div class="process-section">
+      <h3>The hand-drawn map</h3>
+      <p>The map of Lupinous on the Map page is a digital interpretation. The canonical version is hand-drawn — pencil on paper, every place named in Baird's hand. The digital version was made to share more easily, but the original chart remains the source.</p>
+    </div>
+
+    <div class="process-section">
+      <h3>Character bibles &amp; inspiration sheets</h3>
+      <p>Each of the nineteen raconteurs has a <em>"A Bit About..."</em> sheet and a separate <em>Inspiration</em> sheet. The Bit-About sheet holds the standardized fields — full name, species, age, song, residence, family, role, instrument. The Inspiration sheet pulls from a wide library of characters and works that share an aesthetic with the figure: Yaelokre, Ride the Cyclone, The Owl House, Encanto, Tangled, Stranger Things, Nimona, EPIC, Demon Slayer, Bluey, and many more.</p>
+      <p>Several raconteurs carry quiet personal connection to Baird's family: <em>Saturn</em> carries their oldest brother, <em>Silver Gray</em> their father, <em>Caleb Jackson</em> their second brother, <em>Vyne</em> their third brother (and structurally Baird's own gender dysphoria), <em>Lilac</em> their younger sister. And <em>Charlotte (Charlie) Windfellow</em> was Baird's first-ever original character — the originating particle of AMBERLORE, and the reason the legendarium exists at all.</p>
+    </div>
+
+    <div class="process-section">
+      <h3>Aesthetic lineage</h3>
+      <p>AMBERLORE draws from a cluster of works that share certain qualities: song-driven, queer-coded or queer-affirming, magic-is-real-and-painful, family-is-the-wound-and-the-cure. The four primary aesthetic cosmoses that recur across the inspiration sheets are <em>Yaelokre</em> (the song-cycle-with-built-world form), <em>Ride the Cyclone</em> (the dead-teenagers-telling-their-stories register), <em>The Owl House</em> (magical-misfit-teen), and <em>Encanto</em> (family-as-wound-and-cure).</p>
+    </div>
+
+    <div class="process-section">
+      <h3>The three acts</h3>
+      <p>AMBERLORE unfolds in three acts.</p>
+      <p><strong>Act One: AMBERLORE</strong> is the raconteur origin cycle — nineteen Hark! chapters, each raconteur telling their own past in their own voice. The <em>amber</em> in the title is a preservation metaphor: each chapter is the fossilized formative event that shaped the person who will appear in Act Two.</p>
+      <p><strong>Act Two: IN SYMPHON</strong> is the ensemble movement — pieces where raconteur lives braid together. The "what happens next" stories. Nickvia's novella <em>To Breathe in a Billow of Smoke</em> lives here. So do the intersection pieces where raconteurs meet, form chosen families, and continue their arcs beyond their origin chapters.</p>
+      <p><strong>Act Three: ATTINGERE</strong> is the collective climax — the <em>reaching-toward</em>. When all nineteen voices converge on a single conflict. The antagonist is still being shaped. Roxanne is expected to discover what she is in that book, not the earlier ones.</p>
+      <p>Tolkien did this (Hobbit → Lord of the Rings). Riordan did this (Percy Jackson → Heroes of Olympus). Pullman did this (Northern Lights → His Dark Materials). The first act is not the war. It is <em>the making of the people who will fight it.</em></p>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="page" id="page-about">
+  <div class="container">
+    <div class="page-label">About</div>
+    <h1 class="page-title">The Author</h1>
+    <div class="ornament-divider">❦ ❦ ❦</div>
+    <div class="about-block">
+      <p>Baird Lupine is a writer and songwriter. AMBERLORE is their first long work — a multimedia song-cycle and legendarium with nineteen raconteur voices, twelve interludes, six completed songs, and a kingdom still being mapped.</p>
+      <p>The project draws from a wide library — Yaelokre, Mistborn, His Dark Materials, Song of Achilles, Studio Ghibli, Heroes of Olympus, EPIC, Gorillaz — but is its own world entirely. New material arrives monthly. Songs are released as they are recorded.</p>
+      <p>For inquiries, please use the form below.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-ornament">❦ ❦ ❦</div>
+  <p>AMBERLORE © Baird Lupine</p>
+  <p>Made with care</p>
+</footer>
+
+<script>
+  // RACONTEURS — each written as if by the character. Standardized fields across all. Ordered per Baird's spec.
+  const raconteurs = {
+    saturn: {
+      slug: 'saturn', name: 'Saturn', role: 'The Creator',
+      meta: 'Vattalea · he/they · was Lyra Zenith Rinne of Cerulean',
+      sig: '~Saturn',
+      body: [
+        "I am Saturn, who once was Lyra Zenith Rinne of a world long since unmade. The stars I now keep were once the consolation of a boy who had no other friend; the ink that stained my hands as a mortal stains them yet, though the parchment now is wider.",
+        "Ask me, and I shall answer. I have not, in this long unfolding, learned the trick of holding back what I am asked. The hiding I leave to those who have not yet outlived their shame.",
+        "My sister Nova walks the cosmology as Fate, though I do not see her in the body she wears now. I would know her, I think, if she came to my desk. I believe she would let me.",
+        "If thou hast a story unwritten, write it. Cerulean was lost; my stories were not. Thine own may also outlast thee."
+      ],
+      extras: {
+        'Age': 'older than this world.',
+        'Pronouns': 'he/they.',
+        'Residence': 'amongst the stars.',
+        'Domain': 'the stars. the prefaces. the In-Between, as I am able.',
+        'Instrument': 'pen and ink.',
+        'Currently': 'revising. ever revising.',
+        "Won't talk about": 'naught, if asked plainly.',
+        'Will talk about': 'every thing thou dost ask. only ask.',
+        'Likes': 'tea I forget to drink. unfinished pages. Bowie. bare feet.',
+        'Dislikes': 'being mistaken for omnipotent. I am not.'
+      }
+    },
+    vita: {
+      slug: 'vita', name: 'Vita', role: 'Vattalea of the Sun and Life',
+      meta: 'Vattalea · he/him · was Jackson Desrosiers · lute',
+      sig: '— Vita ✨',
+      body: [
+        "Vita, baby. The Sun. Life itself. You're welcome.",
+        "I am, technically, the most important Vattalea in this whole production. Saturn made the world but I keep it warm. Reika handles the rain, which is — fine, I guess, somebody has to. Archie does the moon, which is cute. I do everything else.",
+        "I was a Desrosiers, once. That's a name I haven't used in centuries and don't owe you the rest of. We played taverns. I was the talented one. The girls were — sweet, mostly. They got what they got.",
+        "If you're writing me a song, send it. I'll probably listen to the first verse. If it's good I might give you a quote. If it's bad I'll lie and tell you it's good, because that's what gods do.",
+        "I'm extremely charming. Several people have written entire essays about it. Don't make this weird."
+      ],
+      extras: {
+        'Age': "doesn't matter. I look incredible.",
+        'Pronouns': 'he/him.',
+        'Residence': 'wherever the sun is. wherever the bar is.',
+        'Domain': 'sun. life. attention.',
+        'Instrument': 'lute. yes the same one. no I don\'t want a new one.',
+        'Currently': 'fabulous, thanks.',
+        "Won't talk about": "the Desrosiers. boring.",
+        'Will talk about': 'me. mostly me. occasionally me.',
+        'Likes': 'gold. mirrors. people listening when I speak.',
+        'Dislikes': 'being interrupted. being upstaged. Reika (she knows).'
+      }
+    },
+    reika: {
+      slug: 'reika', name: 'Reika', role: 'Vattalea of Rain, Weather, and Music',
+      meta: 'Vattalea · she/her · was Leah Desrosiers · violin',
+      sig: '— Reika',
+      body: [
+        "I am Reika. I was Leah. I am the rein, now. I am also the wether between cloudes. I am sorry. I am still lerning the words.",
+        "When you are caut in a storm and you do not know what you feel — that is me, listening to you. I do not mean to make you cold.",
+        "My brother Vita is loud. He is also a liar but he is my brother. My sister Archie is small. I love her very much. I do not see them often. The weather is a quiet work.",
+        "If you would like to find me, go outside. I will be there. Pleese bring a coat."
+      ],
+      extras: {
+        'Age': "I do not know. some hundreds.",
+        'Pronouns': 'she/her.',
+        'Residence': 'in the rein. in the wether. in the air.',
+        'Domain': 'rain. weather. music it self.',
+        'Instrument': 'violin. the one I played before.',
+        'Currently': 'overcast. quiet.',
+        "Won't talk about": 'the poisening.',
+        'Will talk about': 'mostly nothing. but I am tryin.',
+        'Likes': 'gentle rein. low voices. minor keys.',
+        'Dislikes': 'shouting. arguements. Vita when he is being like that.'
+      }
+    },
+    archemoros: {
+      slug: 'archemoros', name: 'Archemoros', role: 'Vattalea of Nightmares & the Moon · The Prime Nightwalker',
+      meta: 'Vattalea · she/her · was Annabelle Desrosiers · pan flute',
+      sig: '— Archie 🌙',
+      body: [
+        "Hi hi hi!!!! I'm Archie!! It's so so nice to meet you!! I'm the Vattalea of Nightmares and the Moon and also the Prime Nightwalker which is THREE TITLES which is a lot but I'm not gonna brag!!",
+        "I have three lizards!! Their names are Periwinkle, Tarragon, and Crispin!! They are SO good!! They sit on my hands sometimes!! I love them more than anything in the entire void!!",
+        "Okay um — I'm SO sorry about your nightmares. I'm really really sorry. I don't WANT to make them. They just kind of — happen — because of what I am? But I promise I'm not trying to scare you. If I'm in your dream you can say hi and I'll wave! And then I'll leave!! I promise!!",
+        "I have a friend named Roxxie who I have never met in person and she is eight and she likes lizards too which is the BEST. We are going to meet someday I think!!",
+        "I don't need anything! I'm so happy! Thank you for visiting my page!!"
+      ],
+      extras: {
+        'Age': "the youngest!! (don't tell my siblings I said that)",
+        'Pronouns': 'she/her.',
+        'Residence': 'a cozy little void!! (it has lizards!!)',
+        'Domain': 'nightmares (sorry!!), the moon, night-times.',
+        'Instrument': 'pan flute!! ❤',
+        'Currently': 'SO happy you\u2019re here!!',
+        "Won't talk about": "um. I'll talk about anything!! :)",
+        'Will talk about': "lizards lizards lizards Roxxie lizards.",
+        'Likes': 'EVERYTHING. lizards. necklaces with beads. friends.',
+        'Dislikes': "making people scared (I'm sorry)."
+      }
+    },
+    fenris: {
+      slug: 'fenris', name: 'Fenris', role: 'The Terror of Jaxon Hill',
+      meta: 'Sixrine · she/her · was Katarina Liadon',
+      sig: '— Fenris 💗',
+      body: [
+        "Hii!! I'm Fenris. Like, hi. Welcome to my page. Yes the pink hair is real, no I don't dye it, yes it is genetic, *yes* it is genetic, please stop asking.",
+        "I run a really really important project right now? Which I literally cannot tell you about? But trust me, it is extremely big. Sorry to be cryptic. I'm just SO busy. You wouldn't believe it.",
+        "Okay so — funny story — I used to have this protégée? Total disaster. Could not handle anything. Constantly moping, constantly stomping around, the WORST hair situation, literally would not take a single piece of advice I gave her, and then she just like… left? With zero gratitude? After everything I did for her?? Whatever. Whatever! I'm over it. I'm SO over it. Total mess. Moving on.",
+        "I host at Jaxon Hill if you want to come. The wine is unreal. Bring a gift. Not flowers — flowers are tacky.",
+        "Be careful out there, Valoyi babies!! Stay safe!! ✨"
+      ],
+      extras: {
+        'Age': "you're literally not supposed to ask that.",
+        'Pronouns': 'she/her.',
+        'Residence': 'Jaxon Hill (it\'s gorgeous, you should see it).',
+        'Order': 'Sixrine, obviously.',
+        'Instrument': "Sixrines don't have instruments. We have *taste*.",
+        'Currently': "SLAMMED. like literally so busy. don't even ask.",
+        "Won't talk about": "the project. or the protégée. she was a NIGHTMARE.",
+        'Will talk about': "interior design. wine pairings. who's been invited and who hasn't.",
+        'Likes': "pink. control. people who don't ask questions.",
+        'Dislikes': "ungrateful girls. clip-on earrings. flowers as a gift."
+      }
+    },
+    rubyrose: {
+      slug: 'rubyrose', name: 'Ruby Rose', role: 'The Performer',
+      meta: 'Mortal · she/her · 36 · Noctis Bay',
+      sig: '— Ruby Rose',
+      body: [
+        "Why, hello there, darling. Ruby Rose Evangeline, of Noctis Bay. Don't you look lovely tonight. Or — well, I suppose I can't see you, can I? Then I shall assume you do. You always do.",
+        "I sing at a small club called the Salt Lantern. Three nights a week. The second set is the better one — I am warmest by the encore, when my hair has come a little loose. You should come. I always like to see a new face.",
+        "I wear a feather in my hair because it suits me, and because the modern look is, in my honest opinion, unkind to a woman's shoulders. My partner Dimitri keeps me well. He is out of town a great deal. I do not mind. I rather like a quiet morning.",
+        "I do not speak of where I have come from, or of certain things I have lost. A lady is permitted her silences. You shall not have those from me, no matter how charmingly you ask — and you are, I'm sure, terribly charming.",
+        "Come find me at the club. Order the gin. Tip the band."
+      ],
+      extras: {
+        'Age': '36 (or so the records say).',
+        'Pronouns': 'she/her.',
+        'Residence': 'Noctis Bay. a small flat above the club.',
+        'Sig. other': 'Dimitri Endorsen.',
+        'Instrument': 'voice. piano if pressed.',
+        'Currently': 'warm. lovely. waiting for the second set.',
+        "Won't talk about": "her past. anything before twenty.",
+        'Will talk about': "the club. the songs. lipstick. you.",
+        'Likes': "feathers. red lipstick. gin. encores.",
+        'Dislikes': "cold rooms. wrong-tempo accompanists. flash photography."
+      }
+    },
+    odalia: {
+      slug: 'odalia', name: 'Odalia', role: 'The Unknown',
+      meta: 'Specter · she/her · eldest of the Silence',
+      sig: '— Odalia',
+      body: [
+        "My name is Odalia Silence. I am the eldest of three. I was once two — and then we were murdered, both of us, and now we are two again, by my hand and another's.",
+        "I think before I speak. I am slow to anger. I am slower to forgive. I have not forgiven, in the matter that took my family from me, and I do not expect that I shall. That is not the same as plotting. It is only the truth, kept where it belongs.",
+        "My sister Anilith is the most precious person in this cosmology, and the only person for whom I would trade what I traded. I would do it again. I would do it a hundred times. She does not need to know how many times, only that the door is open and she is on the safe side of it.",
+        "I do not say his name. You should not either."
+      ],
+      extras: {
+        'Age': 'older than my sister.',
+        'Pronouns': 'she/her.',
+        'Residence': 'discreet.',
+        'Order': 'Specter (the first known).',
+        'Instrument': 'none.',
+        'Currently': 'watching. patient.',
+        "Won't talk about": 'the bargain. the murder. his name.',
+        'Will talk about': 'Anilith. only Anilith.',
+        'Likes': 'my sister. quiet rooms. the long view.',
+        'Dislikes': "Mordai. anyone who hurts what is mine."
+      }
+    },
+    christopher: {
+      slug: 'christopher', name: 'Christopher', role: 'The Everyman',
+      meta: 'Mortal · he/him · Twilist · Holloway family',
+      sig: '— Christopher',
+      body: [
+        "Hello. My name is Christopher Lewis Holloway. I am seventeen years old. I am — well, I am an apprentice. To a blacksmith. Mr. Richard Reed Evans, of Timberton. He is very kind to me. I am still getting used to that.",
+        "I have an older brother named Bethwood, who is twenty-six. He is recently engaged to a Fountist named Anilith Silence, who I think is one of the most graceful people I have ever met. They look at each other in a way that — well. They look at each other in a way.",
+        "I enjoy the stars, baking, sewing, and reading poetry. I am hoping to be a knight at Mysthaven Castle, someday. I have not told many people that, because I am told it is unlikely. I am trying it anyway.",
+        "The other apprentice at Mr. Evans's shop is a boy named — oh, I should not say. He has very dark eyes. He is kind to me too. I am sure that does not mean anything.",
+        "Please do not tell my parents I wrote any of this."
+      ],
+      extras: {
+        'Age': '17. (or 29.)',
+        'Pronouns': 'he/him.',
+        'Residence': 'Timberton. (for now.)',
+        'Faith': 'Twilist.',
+        'Instrument': 'a hammer at the forge. a pen at home.',
+        'Currently': 'trying. nervously.',
+        "Won't talk about": 'my mother. the boy at the shop.',
+        'Will talk about': 'stars. crawfish. Anilith. my brother.',
+        'Likes': 'baking. sewing. dark eyes. (sorry.) animals. poems.',
+        'Dislikes': "being told I won't make it."
+      }
+    },
+    naomi: {
+      slug: 'naomi', name: 'Naomi', role: 'The Princess',
+      meta: 'Mortal · she/her · daughter of Queen Natalia Everglade',
+      sig: '— Naomi',
+      body: [
+        "My name is Naomi. I live in Mysthaven Castle. I am the daughter of the Queen.",
+        "I wear silver cuffs upon my wrists. I have worn them since I was small. The gate to the gardens has, on occasion, been left open. I have not gone through it. I do not know if that is because I cannot or because I have not learned to.",
+        "I read. I have read everything in the library twice, and the maps three times. I have learned a great deal of what the world is shaped like, from the inside of a single room.",
+        "There is a butler who brings me books my mother would not approve of. I will not say his name. He is kind, and he counts things when he is nervous, which I have noticed because I count things also, and have not told him.",
+        "I have a song. It is called Clipped. You may listen to it if you wish. It will tell you what I cannot."
+      ],
+      extras: {
+        'Age': 'about sixteen, I am told.',
+        'Pronouns': 'she/her.',
+        'Residence': 'Mysthaven Castle.',
+        'Instrument': 'voice.',
+        'Currently': 'reading. waiting. counting (privately).',
+        "Won't talk about": "my mother. the cuffs. why I have not left.",
+        'Will talk about': "books. maps. the butler (no name).",
+        'Likes': "maps. poetry. quiet visitors. things I have not yet seen.",
+        'Dislikes': "silver. the sound of the gate."
+      }
+    },
+    silver: {
+      slug: 'silver', name: 'Silver', role: 'The Rebel',
+      meta: 'Mortal · she/her',
+      sig: '— Silver 🤠',
+      body: [
+        "Howdy, partner. *finger guns* Names Silver Gray, but you can call me whatever you want, mostly. Real one\u2019s only for Ashlin.",
+        "I dont have a residanse. Don\u2019t need one. I got a bedroll, a pretty girl, and an open road. Ashlins from Jheria. Shes from down south where the bred is supposedly better, which I cant confirm cuz I aint been there, but Ashlin says it and Ashlin doesnt lie to me so.",
+        "I got a scarred eye. Don\u2019t ask about it. *salute* Moving on.",
+        "Ashlin paints. Did you know that? Shes the best painter youve ever seen and I will fight anyone who says otherwise. She paints with her left hand even tho shes right handed which makes no sense but she does it anyway, my girl is incredible.",
+        "If you put my real adress anywhere on this internet thing I will find you. Just sayin. *finger guns* Be good now."
+      ],
+      extras: {
+        'Age': '20s somewhere.',
+        'Pronouns': 'she/her.',
+        'Residence': 'wherever Ashlins at.',
+        'Instrument': "I dont play. Ashlin sings tho.",
+        'Currently': 'driving. Ashlins next to me. life is good.',
+        "Won't talk about": 'the eye. anyone from before Ashlin.',
+        'Will talk about': 'Ashlin. cars. roads. Ashlin. Jheria (secondhand). Ashlin.',
+        'Likes': 'Ashlin. open windows. the smell of gas stations.',
+        'Dislikes': 'cameras. small talk. being indoors.'
+      }
+    },
+    ashlin: {
+      slug: 'ashlin', name: 'Ashlin', role: 'The Artist',
+      meta: 'Valoyi · she/her · from Jheria',
+      sig: '— Ashlin ☀',
+      body: [
+        "Och, hello there lass! Ashlin Mauve O'Bailey, ye'll find me up here, painting somethin\u2019 — Silver\u2019s arm, today, the one with the freckle constellation she pretends she doesnae have. She does have it. I love it. I love her.",
+        "I\u2019m from Jheria proper — way down past the South Sea, where the wee sun comes up gold and the bread\u2019s the better of any kingdom\u2019s, ye can take that to the bank. I miss my mum. I miss my sisters Aimee and Aideen. But I dinnae miss them in a heavy way, ye ken? More in a warm way. Silver\u2019s my home now. She is. She really is.",
+        "My magic\u2019s bonded to joy. Brighter I feel, brighter the painting comes out. So I try to stay bright, even on the heavy days, even when Silver\u2019s got that look about her that means she\u2019s rememberin\u2019. We get through. We always get through.",
+        "I work part-time at the Golden Swan when we pass through Mysthaven. Kaiso runs it. She\u2019s a gem of a woman. She fed me on a day I had nothin\u2019, years back. I owe her ten thousand circleans and a thousand paintings before I\u2019m square.",
+        "Silver said I shouldnae go on, so I\u2019ll go. Goodbye my dears! Be soft with one another! ☀"
+      ],
+      extras: {
+        'Age': 'mid-20s.',
+        'Pronouns': 'she/her.',
+        'Residence': 'wherever Silver is.',
+        'Bonded to': 'joy.',
+        'Instrument': 'brushes. charcoal. me own hands when needed.',
+        'Currently': 'painting Silver. (do nae tell her.)',
+        "Won't talk about": "Silver's past — not mine to share, ye ken.",
+        'Will talk about': "Silver. Jheria. me sisters. pigments. me mum\u2019s bread.",
+        'Likes': "Silver. linseed oil. the south coast. a wee biscuit.",
+        'Dislikes': "Lupinese bread. being called \u2018cute\u2019 in that voice."
+      }
+    },
+    silvia: {
+      slug: 'silvia', name: 'Silvia', role: 'The Monster',
+      meta: 'Valoyi · she/her',
+      sig: '— Silvia',
+      body: [
+        "Hi. I am fine.",
+        "Silvia Aleus Nilrilith. 12-string guitar. The Shape of Silence. That iss my song. I am sorry I keep mistyping I keep mistyping. My hands are a litttle. Yeah. Anyway.",
+        "I am ddoing fine. I am good. I am normal amounts of okay. People keep asking and I keep saying I am fine which I am. I am. Why are you all looking at me like that.",
+        "I have been playing for a while now. A long while I gguess. I do not really sleep that much but I do not need much. I am fine on like four hours. Four is plenty. I have been doing four for years and I am still standing so you can put away the concerned face thank you.",
+        "Sometimes I forget what day it is. Whatever. It happens.",
+        "My hands shake a litttle. Yes. I know. You do not need to point it out. Capo higher and your left hand does nott have to reach as far. I figured it out years ago. It is fine.",
+        "Sorry. I keep saying it is fine. It is fine though. It really is. I am really doing well.",
+        "Listen to the song. Do not ask me anything else. I have to. There is. I have to go."
+      ],
+      extras: {
+        'Age': 'I am not telling you that.',
+        'Pronouns': 'she/her.',
+        'Residence': 'no.',
+        'Bonded to': 'figure it out.',
+        'Instrument': '12-string guitar.',
+        'Hands': 'a litttle. yes. I noticed. moving on.',
+        'Currently': 'fine. really. so fine.',
+        "Won't talk about": 'most things.',
+        'Will talk about': 'tunings. capos. nothing else.',
+        'Likes': 'C standard. the door closed. four hours of sleep (plenty).',
+        'Dislikes': 'concerned faces. people pointing things out. this page.'
+      }
+    },
+    charlotte: {
+      slug: 'charlotte', name: 'Charlotte', role: 'The Magician',
+      meta: 'Mortal · she/her · 16 · "Charlie"',
+      sig: '— Charlie',
+      body: [
+        "Hullo!! I'm Charlotte Lee Windfellow, but for heaven\u2019s sake please call me Charlie — Charlotte sounds like a woman who would correct your grammar, which I would only do if you asked me, and which I am holding myself back from doing right now actually.",
+        "I have two mums, Kate and Bethany, who are absolutely brilliant, and a blue headband which I never take off because it was a gift and I am sentimental about objects. I read constantly. Currently I am reading three books at once which my mums say is unwise but which is in fact the only sensible way to read.",
+        "I love school. I love it. I know that\u2019s deeply uncool. I do not particularly care. School is the closest thing I have to a magic system in my own life — you go in, you learn things, you become slightly more capable of comprehending the world. Lovely. Sign me up.",
+        "I\u2019ve written a song called Confession and I\u2019m writing a novel which I will absolutely not describe to you because we will be here all evening, and you have a life. Probably. I hope so.",
+        "Right, cheerio. Do come back, won\u2019t you."
+      ],
+      extras: {
+        'Age': '16.',
+        'Pronouns': 'she/her.',
+        'Residence': "with my mums (won\u2019t say where, privacy is brilliant).",
+        'Bonded to': "I\u2019m a Magician — explanation forthcoming when I figure out how to put it tidily.",
+        'Instrument': 'voice. piano (badly, sorry mum).',
+        'Currently': "reading three books. quite content.",
+        "Won't talk about": "the chapter of my novel I\u2019m stuck on.",
+        'Will talk about': "books. school. my mums. my headband.",
+        'Likes': "books. school. tea. the Bodleian (in theory).",
+        'Dislikes': "being made to stop reading mid-chapter."
+      }
+    },
+    caleb: {
+      slug: 'caleb', name: 'Caleb', role: 'The Searcher',
+      meta: 'Mortal · he/him · 16 · chose his name',
+      sig: '— Caleb',
+      body: [
+        "Hi, um — I'm Caleb. Sorry. I'm Caleb. I chose this name last year and it was — yeah it was a lot, but it's mine now, and it fits, I think? I hope. Sorry.",
+        "I'm sixteen. I have brown hair that I cut myself, kind of, sort of badly. I tinker with sound equipment. Recorders, mics, mixers. I'm not great at it but I'm getting better, maybe. I don\u2019t know. Sorry, I keep saying sorry. Sorry.",
+        "I — I don\u2019t really know my biological family. I was raised by people who aren\u2019t my parents. I don\u2019t know how to ask the questions I\u2019d need to ask to find out more. I think about it constantly. I try not to. It doesn\u2019t work. Sorry.",
+        "I want to be a teacher, when I\u2019m older? Like, a really good one. The kind who notices when a kid is having a hard time. I think I\u2019d be good at noticing.",
+        "I love the Dear Evan Hansen soundtrack. I know. I\u2019m so sorry."
+      ],
+      extras: {
+        'Age': '16.',
+        'Pronouns': 'he/him.',
+        'Residence': "with the people who raised me. for now. is that okay.",
+        'Instrument': "recording stuff. guitar (a tiny bit).",
+        'Currently': "anxious. trying. listening to musical theater.",
+        "Won't talk about": "the gaps. I just can\u2019t right now. sorry.",
+        'Will talk about': "sound design. teaching. musicals. tape hiss.",
+        'Likes': "Dear Evan Hansen. Sufjan Stevens. Yaelokre. soft sounds.",
+        'Dislikes': "loud rooms. being noticed when I don\u2019t want to be."
+      }
+    },
+    onine: {
+      slug: 'onine', name: 'Onine', role: 'The Spirit',
+      meta: 'Hybrid · any',
+      sig: '— Onine',
+      body: [
+        "hi!! im onine. its nice to meet u.",
+        "i play a game with my friend vyne where we leve little stons in a circle and the next one finds it and adds a stone. the circle is geting bigger. i think we are friends. i hope so.",
+        "ashlin gives me brad sometimes. she has red hair. the brad is soft. i like soft things.",
+        "i saw a ladybug today. it had six spots not seven witch is unusal but i checked twice and it was six. i named her Pip. i hope i see her tomorow.",
+        "the woods are good when its dusk. the light goes soft and the birds get quieter and i like to sit. you can sit too if you want. i wont mind."
+      ],
+      extras: {
+        'Age': '13.',
+        'Pronouns': 'any.',
+        'Residence': 'the woods mostly. sometimes a barn if its raining.',
+        'Instrument': "i would like to lern. i havent yet.",
+        'Currently': "watching the ladybug. quietly.",
+        "Won't talk about": "things from before. id rather not.",
+        'Will talk about': "ladybugs. stons. dusk. vyne. ashlin.",
+        'Likes': "ladybugs. soft brad. quiet. small games.",
+        'Dislikes': "loud noises. when ladybugs fly away to fast."
+      }
+    },
+    calliope: {
+      slug: 'calliope', name: 'Calliope', role: 'The Corrupted',
+      meta: 'Specter · she/her · 15',
+      sig: '— Calli',
+      body: [
+        "I am Calliope Amber Evans. People call me Calli. Whatever. I'm not gonna correct you either way.",
+        "I'm gangly. Like — there's a lot of limb. The woods are good because no one's measuring me here. I just kind of unfold and exist. The deer don't care about my limbs. The deer are good company actually. Don't make this a thing.",
+        "I draw. I'm — okay at it. I'm fine. I sketch the deer a lot and the trees and sometimes faces from memory which is hard because memory isn't fair to faces. Look I'm not going to put any of it up here. You can't make me.",
+        "I happen to have watched a few shows. That's all. It's not a — it's not a thing. I've seen Mushishi a couple times. (Three times. Whatever.) I've seen Princess Tutu. I will not be discussing Madoka. If you bring up Earwig and the Witch I will close my laptop and walk into the trees and you will never see me again.",
+        "I have two siblings. I love them. I don't know how to be near them right now. I'm working on it. I'm not working on it that hard, but I'm working on it.",
+        "Don't come find me."
+      ],
+      extras: {
+        'Age': '15. tall for it.',
+        'Pronouns': 'she/her.',
+        'Residence': 'the Susurra Woods. eastern clearing. seriously, don\u2019t.',
+        'Order': "Specter. and that's all I'll say about that.",
+        'Instrument': "I sing, sometimes. badly. it's fine.",
+        'Currently': "drawing deer. existing limbs-first.",
+        "Won't talk about": "what happened. why I left. the gem.",
+        'Will talk about': "deer. shows I have NOT obsessively rewatched. art (mine, defensively).",
+        'Likes': "Mushishi (whatever). pencils. dusk. quiet rooms.",
+        'Dislikes': "Earwig and the Witch (the betrayal). being asked to come home."
+      }
+    },
+    vyne: {
+      slug: 'vyne', name: 'Vyne', role: 'The Gardener',
+      meta: 'Valoyi-Mortal hybrid · they/them · 10',
+      sig: '— vyne',
+      body: [
+        "hi i'm vyne. um. is it okay that i\u2019m here? i wasn\u2019t sure if i was supposed to write a lot or a little. i\u2019ll do medium. okay.",
+        "i\u2019m ten. i have two small brown horns and choppy hair (lilac cut it for me, she did her best). i\u2019m a hybrid which i don\u2019t fully understand. i grow plants when i\u2019m nervous and i\u2019m nervous most of the time which means there are SO many plants where i live now. is that okay? i hope it\u2019s okay.",
+        "i love bugs. i love every single bug. i love beetles and pillbugs and ladybugs (especially!!) and even the spiders which lilac doesn\u2019t but i tell her they\u2019re just little guys with eight legs trying their best. i love deer. i love foxes. i love the ivy. i love a fern even though ferns are a little dramatic.",
+        "there\u2019s a small wandering person in the woods who plays a stone game with me. she doesn\u2019t talk. that\u2019s okay! she leaves stones, i leave stones, we both add to the circle. i think she likes ladybugs too because she named one once on a piece of paper that she left behind. her ladybug had six spots. i told a beetle about it.",
+        "are you sure i\u2019m doing this right? okay. i\u2019ll stop."
+      ],
+      extras: {
+        'Age': '10.',
+        'Pronouns': 'they/them.',
+        'Residence': "a house full of plants. lilac is here.",
+        'Bonded to': "anxiety. (plants grow when i\u2019m nervous.)",
+        'Instrument': "i hum. quietly. when no one\u2019s listening.",
+        'Currently': "worrying that i\u2019m typing too much.",
+        "Won't talk about": "what people think of me. (i\u2019m working on it.)",
+        'Will talk about': "EVERY bug. plants. deer. foxes. the stone game.",
+        'Likes': "bugs. pillbugs especially. ladybugs (!!). lilac. ferns (but dramatic ones).",
+        'Dislikes': "loud noises. when people look at me too long."
+      }
+    },
+    lilac: {
+      slug: 'lilac', name: 'Lilac', role: 'The Dreamer',
+      meta: 'Mortal · she/her · 10',
+      sig: '— Lilac!!',
+      body: [
+        "HI HI HI!! I\u2019m Lilac!! I\u2019m TEN and my favorite color is yellow and I have a necklace with a gold star on it from my mom that I NEVER take off and Vyne is my TWIN which means we were in the same belly at the same time which I think is so cool because it means we have known each other since BEFORE we were ourselves which is wild when you think about it.",
+        "I love stories I love them I love them I love them. I love any story about flying or animals or naps or magic or hats. Hats are an underrated kind of story. I love hats. I love the IDEA of hats. I don\u2019t actually have very many hats. Mom said I could get a hat for my birthday. I think I want a yellow hat. With a flower. Or a feather. Both? Both.",
+        "I take naps. Lots of naps. Vyne says naps are when your brain finishes the stories it started during the day, which I think is so beautiful, which is why I take so many of them, so my brain has time to finish ALL of them, because there are a LOT of them.",
+        "Sometimes I dream things and then they happen. Just little things. Like I'll dream we eat soup and then we eat soup. Or I'll dream I find a snail and then I find a snail. Vyne says I\u2019m a Dreamer which is a real thing apparently which is exciting!! I would like to fly someday. Not like a bird. Just like, deciding walking is one option among several. You know?",
+        "Okay I have to go take a nap now byeeeee!!!"
+      ],
+      extras: {
+        'Age': '10!! same as Vyne we\u2019re twins!!',
+        'Pronouns': 'she/her.',
+        'Residence': 'a house with Vyne!! and lots of plants!!',
+        'Instrument': 'I sing in the shower it counts.',
+        'Currently': 'about to nap.',
+        "Won't talk about": "where mom is now. it makes me sad.",
+        'Will talk about': "EVERYTHING ELSE. literally everything else. try me.",
+        'Likes': "yellow. naps. ladybugs. my necklace. stories. hats.",
+        'Dislikes': "thunder. (only a little.)"
+      }
+    },
+    roxanne: {
+      slug: 'roxanne', name: 'Roxanne', role: 'The Lantern',
+      meta: 'Seer · she/her/any · 8',
+      sig: '— Roxxie',
+      body: [
+        "Hi I'm Roxxie I'm eight years old. I live at the house with the other kids. Did you know there are 5,600 kinds of lizard in the world. There are 5,600 kinds. I learned that from a book Miss Adley gave me. I have read the book seven times.",
+        "My favorite kind of lizard is the gecko because their feet stick to anything which is the BEST superpower. Some geckos can stick to ceilings. Some geckos can stick to GLASS. Glass!! Their feet have these tiny hairs called setae and the hairs make a force which I don\u2019t fully understand but Miss Adley says I will when I am older.",
+        "I have a friend named Archie. We have never met in person. She has three lizards named Periwinkle Tarragon and Crispin. I told her about geckos in our minds because that\u2019s how we talk. She said she didn\u2019t know geckos but she would learn. I think she will. I am going to draw her a picture of a gecko and leave it under my pillow and see if it works.",
+        "Sometimes I hear what people are thinking. It\u2019s like overhearing a conversation in a room you are not in. I\u2019m not supposed to tell anyone so please don\u2019t tell. Sometimes the conversation is about lizards which is good. Sometimes the conversation is about me which is not good.",
+        "Do you want to know more about lizards? I have a lot more."
+      ],
+      extras: {
+        'Age': '8.',
+        'Pronouns': 'she/her/any.',
+        'Residence': "the house with the other kids. Miss Adley lives nearby.",
+        'Bonded to': "nobody knows what I am yet. I don't either.",
+        'Instrument': "a wooden whistle Miss Adley gave me.",
+        'Currently': "thinking about geckos.",
+        "Won't talk about": "the thoughts thing don't tell.",
+        'Will talk about': "LIZARDS. all of them. one at a time. or many at a time. either.",
+        'Likes': "geckos (5,600 kinds!!). soup. Archie. Miss Adley\u2019s voice.",
+        'Dislikes': "when grownups argue. when I hear something I wasn\u2019t supposed to."
+      }
+    },
+  };
+  // INTERLUDES — twelve voices, each in their own register.
+  const interludes = {
+    kaiso: {
+      slug: 'kaiso', name: 'Kaiso Lunar', role: 'Innkeeper of the Golden Swan',
+      meta: 'Mortal · she/her',
+      sig: '— Kaiso',
+      body: [
+        "Hello, love. Kaiso Lunar — I run the Golden Swan in Mysthaven. If you've passed through the city you may have stayed with me.",
+        "I keep rooms clean, I keep meals hot, I keep my door open longer than is sensible. People come through. Some of them I remember for the rest of my life. Two small girls came in once, years ago, on a night they shouldn't have been out. I gave them soup. I gave one of them a room I do not rent. I would do it again.",
+        "If you come through Mysthaven, come find me. Take a meal. Sit a while."
+      ],
+      extras: { 'Residence': 'the Golden Swan, Mysthaven.', 'Currently': 'pouring something.', 'Likes': 'a full table. quiet listeners. small girls who need a meal.' }
+    },
+    nova: {
+      slug: 'nova', name: 'Nova Rinne', role: 'Fate',
+      meta: 'was Nova Rinne of Cerulean · now whatever Fate is',
+      sig: '— Nova / Fate',
+      body: [
+        "I was Nova Rinne. I had a brother. He wrote stories. I made fun of him for it, sometimes. He survived me by becoming a god, which is a thing I did not expect on the day Cerulean ended.",
+        "I am Fate now. Or I am something the cosmology calls Fate. The names do not fit me any better than the body did. I write what is going to happen. I do not always know what it means.",
+        "Saturn misses me. I know. I cannot reach him in the way he wants. I am sorry."
+      ],
+      extras: { 'Residence': 'unfixed.', 'Currently': 'writing. far from my brother.', 'Likes': 'inevitability. patterns. brothers.' }
+    },
+    dimitri: {
+      slug: 'dimitri', name: 'Dimitri Evangeline', role: 'Singer · Performer',
+      meta: 'Mortal · he/him · Noctis Bay',
+      sig: '— Dimitri',
+      body: [
+        "Dimitri Endorsen. Evangeline in practice. I sing, mostly. Lounge work, weddings if the pay is right, sometimes a private function for someone with too much money and not enough self-awareness.",
+        "I travel a lot. The road is the road. Some nights you get a standing ovation; some nights the booth is empty by the third song. I have stopped letting either of those mean anything about me.",
+        "I have been with Ruby a long time. She is in Noctis Bay. She is fine. We are fine. We are also — what we are. People assume more than is there, sometimes. I do not correct them.",
+        "If you want a song dedicated, slip me a circlean and a name on a napkin. I will get to it before the encore."
+      ],
+      extras: {
+        'Residence': 'on the road.',
+        'Sig. other': 'Ruby (mostly Noctis Bay).',
+        'Currently': 'between cities.',
+        'Likes': 'a clean lounge. a quiet bar back. a standing offer.',
+        'Dislikes': 'sentimentality. cheap whiskey. assumptions.'
+      }
+    },
+    henry: {
+      slug: 'henry', name: 'Henry Evrin', role: 'Dance Instructor',
+      meta: 'Mortal · he/him',
+      sig: '— Henry Evrin',
+      body: [
+        "Good afternoon. My name is Henry Evrin. Thank you for taking the time to review my page.",
+        "I am a dance instructor with twenty-two years of experience, having taught in private homes, civic academies, and seasonal court engagements across Lupinous and parts of the southern provinces. My specialties include classical court forms, partnered formal dance, and individualised instruction for young students preparing for their first official function.",
+        "I conduct myself professionally at all times. I arrive on time. I am polite, punctual, and well-presented. References are available upon request from the families who have hired me.",
+        "I am currently accepting new students. Thank you for your consideration."
+      ],
+      extras: {
+        'Residence': 'flexible — willing to travel.',
+        'Currently': 'between contracts.',
+        'References': 'available upon request.',
+        'Likes': 'punctuality. clean shoes. correct posture.',
+        'Dislikes': 'undisciplined students. tardiness.'
+      }
+    },
+    defessus: {
+      slug: 'defessus', name: 'Defessus', role: 'The Witness',
+      meta: 'Vattalea · she/her · was Sarah Nilrilith',
+      sig: '— Defessus',
+      body: [
+        "I was Sarah Nilrilith. I was eight when the Trials took me. I am older now in a way that is not quite time.",
+        "I live in the Firefly Tree. I see a great deal. I cannot reach everyone I would like to reach.",
+        "My sister does not know I am still here. That is the largest sentence I carry. I do not write it lightly. If anyone reading this ever meets her — be kind to her. She does not know how much she was loved.",
+        "If you have a sister, call her. That is all."
+      ],
+      extras: { 'Residence': 'the Firefly Tree.', 'Domain': 'witnessing.', 'Currently': 'watching. waiting.', 'Likes': 'fireflies. small bowls of soup. my sister.' }
+    },
+    alstroemeria: {
+      slug: 'alstroemeria', name: 'Alstroemeria', role: 'The Birchweaver',
+      meta: 'older than the world · she/her',
+      sig: '— Alstroemeria',
+      body: [
+        "I am Alstroemeria. I was before the world began. I will be after it ends, if endings are still a thing that happens then.",
+        "I weave the In-Between. I tend the souls who come to rest. They tell me what they need; I listen; I help them when they are ready. None refuse the return. None are made to leave before they are.",
+        "I made Saturn a long time ago, because I pitied him. I do not regret it. I think he is doing rather well."
+      ],
+      extras: { 'Residence': 'the In-Between.', 'Domain': 'soul-rest.', 'Currently': 'tending.', 'Likes': 'patience. small kindnesses. Saturn (he is doing well).' }
+    },
+    anilith: {
+      slug: 'anilith', name: 'Anilith Silence', role: 'The Cellist',
+      meta: 'Fountist · she/her · bonded to her cello',
+      sig: '— Anilith',
+      body: [
+        "I am Anilith Silence. I was murdered with my family. My sister Odalia brought us both back. I made my Fountist vow soon after, in Caliant, and I have not played any instrument but my cello since.",
+        "I am partnered with Bethwood Holloway. He is gentle. He is patient. He sits and listens to me play for hours, which is, I think, the kindest thing a man has ever done for me.",
+        "His brother Christopher is also wonderful, though he does not yet know what he is becoming. I hope he gets to find out."
+      ],
+      extras: { 'Residence': 'a small flat near Bethwood.', 'Instrument': 'cello (one specific cello, for the eternal soul).', 'Currently': 'rehearsing.', 'Likes': 'Bethwood. low strings. silence between movements.' }
+    },
+    natalia: {
+      slug: 'natalia', name: 'Natalia Everglade', role: 'Queen of Mysthaven',
+      meta: 'Mortal · she/her',
+      sig: '— Queen Natalia',
+      body: [
+        "I am Queen Natalia Everglade, of Mysthaven. I do not give interviews. I am here as a courtesy.",
+        "My daughter Naomi is well-kept and well-read. She wants for nothing. I have been told to say less than I would like to say on this matter.",
+        "I am aware that someone tried to kill me, a year and some months ago. I am aware she did not. I will not be elaborating."
+      ],
+      extras: { 'Residence': 'Mysthaven Castle.', 'Currently': 'governing.', 'Likes': 'order. heirlooms. closed doors.' }
+    },
+    bethwood: {
+      slug: 'bethwood', name: 'Bethwood Holloway', role: "Christopher's brother",
+      meta: 'Mortal · he/him · Twilist',
+      sig: '— Bethwood',
+      body: [
+        "Bethwood Holloway. I am twenty-six. I am engaged to a Fountist named Anilith Silence, who is the most extraordinary person I have ever met.",
+        "I have a younger brother named Christopher. I have been harder on him than I should have been. I told him on a roof once that he would not make it as a knight. I have been thinking about that sentence for years. I would take it back if I could.",
+        "I am also a son in a house I am leaving. My mother is — well. My mother. I will spare you. Christopher knows.",
+        "If you see my brother in Mysthaven, tell him his older brother said he was wrong. Tell him I said it. Tell him I meant it."
+      ],
+      extras: { 'Residence': 'leaving the family home soon.', 'Sig. other': 'Anilith Silence.', 'Currently': 'packing.', 'Likes': 'Anilith. my brother (do not tell him).' }
+    },
+    barnes: {
+      slug: 'barnes', name: 'Barnes Taylor', role: 'The Broker',
+      meta: 'Mortal · he/him',
+      sig: '— B. T.',
+      body: [
+        "Barnes Taylor. I broker. Specifics, terms, parties.",
+        "I am, by most reasonable measures, a small figure in this book. I appeared once. I offered a job to a young woman in a holding cell. She took the job. The rest is not my business.",
+        "Every person matters. Every person. I keep telling myself that. Some days it is easier than others."
+      ],
+      extras: { 'Residence': 'rooms over a tavern, name omitted.', 'Currently': 'between jobs.', 'Likes': 'paperwork. predictable rates.' }
+    },
+    leon: {
+      slug: 'leon', name: 'Leon Lekha Arthur', role: 'Knight of Mysthaven',
+      meta: 'Mortal · he/him',
+      sig: '— Leon ;)',
+      body: [
+        "Leon. Knight of Mysthaven. Hi. You're cute, are you reading this on your phone? I bet you are.",
+        "Don't be shy. I'm an open book. Ask me anything. Sword stuff, training stuff, the castle, the parties, the gossip, whatever. I love attention. Famously.",
+        "I am very single. I am also not, depending on the week. Don't worry about it. It's all very chill.",
+        "If you're in Mysthaven and you want a tour, come find me. I'll show you around. The whole castle. After hours if you want. I'm flexible."
+      ],
+      extras: {
+        'Residence': 'castle barracks (when I bother).',
+        'Currently': 'looking. obviously.',
+        'Open to': 'pretty much anything.',
+        'Likes': 'attention. compliments. new faces. parties.',
+        'Dislikes': 'being told no.'
+      }
+    },
+    nicholas: {
+      slug: 'nicholas', name: 'Nicholas Crater', role: 'Bartender',
+      meta: 'Mortal · he/him · Mysthaven',
+      sig: '— Nick',
+      body: [
+        "Hey. Nick Crater. I tend bar at a small place in Mysthaven. You have probably walked past it. The sign is small on purpose. Closes at one. Mostly regulars.",
+        "I read paperbacks between rushes. I make a decent old-fashioned. My father was a tanner. That was a whole list of three things in a row, sorry, I am supposed to be introducing myself and I keep stopping. Let me try again.",
+        "I have been tending bar at this place for almost ten years. I bought it from a man named Halver who had been running it for thirty before me. He sold it to me because he liked that I had been pouring for him three nights a week without saying much, and he said the man who took it over had to be a man who did not say much, and I had passed his test without knowing I was being tested. I like that about how I got the bar. I like that the test was do you talk too much.",
+        "I do not talk too much. That has been true my whole life.",
+        "I file things. That is a thing about me. People say things at my bar at one in the morning and I file them, in case the person ever needs the thing they said back. I have been doing this for almost ten years. I have a small notebook in the back for the bigger things. The smaller things I keep in my head. I do not know why I file. I have always filed. It is what I do.",
+        "For example. Eldon — Eldon is one of my regulars — has told me, over the years, that his father is a wheelwright, a blacksmith, a brewer, a tanner like mine was, a man who fixes shoes, and most recently a man who runs a small farm three towns over. I know all of this is not true. I know one of these is the real father. I do not know which one. I have been filing them for years. Eldon is going to figure out one day that I have been listening, and Eldon is going to be embarrassed, and I am going to pretend I do not remember any of it because that is also part of the job. The job is filing the things and then pretending you did not file them.",
+        "One of my regulars left a Rilke collection on the bar in March. I kept it. I have been keeping it under the counter for seven months now in case she comes back for it. There is a thumbprint on page forty-one. I am holding it. The system is the holding.",
+        "I read a lot. Mostly old detective novels. People leave things at my bar all the time. Hats, gloves, keys, books, a small knife once — a very small one, like for opening letters, which I still have in the drawer behind the bar. People leave things and they do not come back for them. I keep what they leave. I have a small shelf of left things in the back. I have been told by my sister that this is a strange thing to do. I think it is a perfectly normal thing to do. The things might want to be claimed someday.",
+        "I am single. I have not wondered about being single. I am not interested in dating anyone in particular. To be very clear.",
+        "The other Tuesday a regular came in and ordered her drink and did not say anything and sat by the window for an hour. Just sat. I gave her the drink and I went back to wiping down the counter and I did not look at her for the whole hour. I have been thinking about that hour since Tuesday. I have been wondering specifically whether I said the wrong thing when she walked in. I said 'hey, the usual?' and she nodded, and I want to know whether 'the usual' was too presumptuous. Should I have said 'what'll it be.' Should I have not said anything at all. Should I have noticed she was not okay and asked. I did not ask. She did not look like a woman who wanted to be asked. So I did not ask. And I have been wondering for five days whether the not-asking was the right call. It was probably the right call. People like her do not want to be asked. People like her want to be poured a drink and given the window and left alone. I think that was right.",
+        "I have a small flat over the bar. My mother lives across town. My sister lives an hour out with her husband and two children, one of whom is named after my father. I see them on Sundays when I can. I am — I am a quiet man, mostly. I think you can tell.",
+        "Come by the bar if you want. I will not be weird about it. The old-fashioned really is good. There is a back booth that is the best seat in the house. If a regular is in the window seat, leave them the window seat. They had it first."
+      ],
+      extras: {
+        'Residence': 'small flat over the bar.',
+        'Currently': 'restocking. wiping down.',
+        'Single': 'yes. unremarkably.',
+        'Filing': 'most things. on principle.',
+        'Under the counter': 'a Rilke collection (not mine).',
+        'Has been keeping': 'a small knife from someone who did not come back for it.',
+        'Most recent good night': 'last Thursday.',
+        'Likes': 'closing shifts. paperbacks. quiet rooms. the regulars (collectively. one or two specifically.).',
+        'Dislikes': 'chatty patrons. afternoon shifts. Tuesdays where she does not play.'
+      }
+    },
+    dolus: {
+      slug: 'dolus', name: 'Dolus Larcent', role: '—',
+      meta: '—',
+      sig: '— D. L.',
+      body: [
+        "I will not be filling this in.",
+        "I am here because the cosmology insists. I have no interest in being known."
+      ],
+      extras: {
+        'Currently': 'elsewhere.',
+        'Will not answer': 'any of it.'
+      }
+    },
+  };
+
+  function renderInterludesGrid() {
+    const grid = document.getElementById('interludesGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    Object.values(interludes).forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'voice-card';
+      card.innerHTML = `<div class="role">${r.role}</div><div class="name">${r.name}</div>`;
+      card.addEventListener('click', () => goTo('interlude-' + r.slug));
+      grid.appendChild(card);
+    });
+  }
+
+  function renderInterlude(slug) {
+    const r = interludes[slug];
+    if (!r) return false;
+    const container = document.getElementById('interludeContent');
+    container.className = 'raconteur-page voice-' + slug;
+    const bodyHTML = r.body.map(p => `<p>${p}</p>`).join('');
+    const extrasHTML = r.extras ? Object.entries(r.extras).map(([k,v]) =>
+      `<p><em>${k}:</em> ${v}</p>`).join('') : '';
+    container.innerHTML = `
+      <a class="back-link" onclick="goTo('interludes')">← back to the interludes</a>
+      <div class="r-role">${r.role}</div>
+      <h1>${r.name}</h1>
+      <div class="r-meta">${r.meta}</div>
+      <div class="r-divider">❦ ❦ ❦</div>
+      <div class="r-body">
+        ${bodyHTML}
+        <div class="r-sig">${r.sig}</div>
+      </div>
+      ${extrasHTML ? `<div class="r-extras"><h3>A few more things</h3>${extrasHTML}</div>` : ''}
+    `;
+    return true;
+  }
+
+  function renderVoicesGrid() {
+    const grid = document.getElementById('voicesGrid');
+    grid.innerHTML = '';
+    Object.values(raconteurs).forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'voice-card';
+      const portraitHTML = r.portrait
+        ? `<div class="portrait" style="background-image: url('${r.portrait}')"></div>`
+        : '';
+      card.innerHTML = `${portraitHTML}<div class="role">${r.role}</div><div class="name">${r.name}</div>`;
+      card.addEventListener('click', () => goTo('voice-' + r.slug));
+      grid.appendChild(card);
+    });
+  }
+
+  function renderRaconteur(slug) {
+    const r = raconteurs[slug];
+    if (!r) return false;
+    const container = document.getElementById('raconteurContent');
+    container.className = 'raconteur-page voice-' + slug;
+    const bodyHTML = r.body.map(p => `<p>${p}</p>`).join('');
+    const extrasHTML = r.extras ? Object.entries(r.extras).map(([k,v]) =>
+      `<p><em>${k}:</em> ${v}</p>`).join('') : '';
+    const portraitHTML = r.portrait
+      ? `<div class="r-portrait"><img src="${r.portrait}" alt="${r.name}"></div>`
+      : '';
+    container.innerHTML = `
+      <a class="back-link" onclick="goTo('voices')">← back to the voices</a>
+      <div class="r-role">${r.role}</div>
+      <h1>${r.name}</h1>
+      <div class="r-meta">${r.meta}</div>
+      <div class="r-divider">❦ ❦ ❦</div>
+      ${portraitHTML}
+      <div class="r-body">
+        ${bodyHTML}
+        <div class="r-sig">${r.sig}</div>
+      </div>
+      ${extrasHTML ? `<div class="r-extras"><h3>A few more things</h3>${extrasHTML}</div>` : ''}
+    `;
+    return true;
+  }
+
+  // READING — chapters (canon) and vignettes (side pieces)
+  const reading = {
+    'silvia-chapter': {
+      kind: 'chapter', label: 'Chapter',
+      title: 'Ligamen Ardoris',
+      subtitle: 'Bond of Passion · told by Silvia Nilrilith',
+      status: 'in progress',
+      summary: "Silvia's chapter. The opening of her chain.",
+      contentNote: null,
+      body: [
+        { type: 'p', text: 'Coming soon. The opening pages live in the legendarium document. They will be moved here when the chapter is closer to finished.' }
+      ]
+    },
+    'christopher-chapter': {
+      kind: 'chapter', label: 'Chapter',
+      title: 'Catching Falling Stars',
+      subtitle: 'told by Christopher Lewis Holloway',
+      status: 'in progress',
+      summary: "Christopher's chapter. Set twelve years before AMBERLORE's present.",
+      contentNote: null,
+      body: [
+        { type: 'p', text: '180, 181, 182… I stared up at the twinkling stars, counting each in the back of my mind while I spent futile yet desperate attempts to keep track of Bethwood\u2019s topics of conversation, which, as always, were ever-changing.' },
+        { type: 'p', text: '"Honestly, Christopher, I\u2019m not sure how I\u2019m ever going to survive once I leave this house. I mean, mother says I\u2019m equipped enough, but I\u2019m not so sure. How far can I go with only eight years of university schooling?" Bethwood complained, as he so loved to do.' },
+        { type: 'p', text: '197, 198, 199… "Two hundred!" I mumbled aloud, triumphant.' },
+        { type: 'p', text: '"Are you listening to anything I\u2019m saying?"' },
+        { type: 'p', text: '"No." I admitted, looking back at the sky. "Look Beth, a falling star! You know that if you stand at the top of the tallest mountain, you can catch it?"' },
+        { type: 'p', text: '(More to come.)' }
+      ]
+    },
+    'fire-and-gasoline': {
+      kind: 'vignette', label: 'Vignette',
+      title: 'Fire and Gasoline',
+      subtitle: 'a Nickvia piece',
+      status: 'complete',
+      summary: 'Nick meets her in a bar. Later she comes home with blood on her hands. Later still she runs into the forest and he follows. Three scenes about a bartender and a monster.',
+      contentNote: 'This piece touches on themes of self-harm and a character\u2019s thoughts of putting herself out to protect the people she loves. If those themes are heavy for you right now, you might come back to it another day.',
+      body: [
+        { type: 'pov', text: 'Nicholas Crater' },
+        { type: 'p', text: 'It was cold outside.' },
+        { type: 'p', text: 'I had been inside all night, but it was the first thing I noticed. One of the things I liked to do while waiting for new customers was notice things. I liked it so much that I did it even when I wasn\u2019t waiting. That was why when she walked through the door I noticed everything about her.' },
+        { type: 'p', text: 'She had dark black hair that was messy and stopped at her ankles, curved black horns that made me feel nervous, and a much-too-pale face littered with scars. There was grime on her green shirt and scratches on her leather jerkin. The rest of her I couldn\u2019t see without being too conspicuous, which was not at all my intention. That was all I could notice before she almost appeared before me and waited for me to speak so she wouldn\u2019t have to. Her eyes were gray. I\u2019d never met a girl with gray eyes before. I guess I didn\u2019t meet a lot of girls in the first place, though. Was this even technically a \u201Cmeet\u201D? This was my job. I should probably stop thinking about it.' },
+        { type: 'p', text: '"What can I get you?" I said as cheerfully as possible, but also with an edge. I figured that would be someone she would want to talk to. Not that I cared that much. Talking was like 60% of my job.' },
+        { type: 'p', text: '"What\u2019s cheap?" she mimicked my tone exactly, but her eyes didn\u2019t match her voice at all. She looked devastated and exhausted.' },
+        { type: 'p', text: 'I cleared my throat. "Whiskey?"' },
+        { type: 'p', text: 'She nodded a simple nod and began tapping her foot. I heard the tapping because she was one of two people in the bar. The other person was me. I just thought that I\u2019d clarify that.' },
+        { type: 'p', text: 'It was probably the fastest I\u2019d ever made a drink, but she looked impatient and in the mood to forget, so I didn\u2019t argue with myself.' },
+        { type: 'p', text: 'As soon as I was done, she dropped two circleans on the counter and retreated to the window seat. I watched her press her face on the cold glass and close her eyes, downing half the whiskey in one go. I winced despite myself.' },
+        { type: 'p', text: '"You\u2019re staring," she said without opening her eyes.' },
+        { type: 'p', text: 'I looked back at the bar and started putting away bottles that weren\u2019t out. I thought I heard her snicker.' },
+        { type: 'p', text: 'The next time I stole a glance at her was ten minutes later. The glass was empty and she was tracing the window with her finger, her hands were shaking uncontrollably. I debated asking her if she was okay, but decided against it. People like her lie and say yes. She raised a finger to order another drink, then let it fall down aimlessly to her side. When I followed it I caught a glimpse of a dagger in her belt.' },
+        { type: 'p', text: 'My first thought was, <em>is she going to rob me?</em> but then I realized that nobody would want to steal anything from a bar. Then I looked at her and thought that yeah, she probably would.' },
+        { type: 'p', text: 'I poured her whiskey and placed it on her table. She muttered a small thanks that hardly reached her lips in the first place.' },
+        { type: 'break' },
+        { type: 'p', text: 'A few more people came into the bar before closing, but she stayed. I kept pouring her her whiskey until I lost count of how many glasses she\u2019d had. Which was bad. I was supposed to know that. But I think she forgot too so at least we were on the same page.' },
+        { type: 'p', text: 'It was still cold when she finally left, but now it was snowing, and I felt bad. She must have noticed, because she said "I\u2019ll be fine." before ducking out the door. There were sixteen circleans on the bar. Eight whiskeys. I think I was supposed to cut her off at six. Dammit.' },
+        { type: 'break' },
+        { type: 'p', text: 'I had waited up for her until it was 3 AM. She said she would be home by 1:30, but she wasn\u2019t. So I\u2019d begun pacing the cottage, trying to notice things I hadn\u2019t noticed before until she came back, which she would, I promised myself. She would come back.' },
+        { type: 'p', text: 'I debated leaving to go look for her, but if she walked in right as I left, there would be no point.' },
+        { type: 'p', text: 'It was 3:15 when I sat against the back of the couch and watched the door, and 3:20 when I heard footsteps. I almost stood up, but decided to stay put in case she was fragile.' },
+        { type: 'p', text: 'She was.' },
+        { type: 'p', text: 'The door opened with a creak, and she didn\u2019t let go of the handle until it hit the wall. That startled her. She jumped. I couldn\u2019t see her face but her chest was heaving too fast and her entire body was shaking. There was blood on her hands. It wasn\u2019t someone else\u2019s.' },
+        { type: 'p', text: 'I don\u2019t think she saw me for a bit. All the lights were off, I should\u2019ve mentioned that. I just watched her lean against the wall and try to calm down fruitlessly. That was when I stood up.' },
+        { type: 'p', text: '"Silvia?"' },
+        { type: 'p', text: 'No response.' },
+        { type: 'p', text: '"Silvia. Hey."' },
+        { type: 'p', text: 'Nothing. She tried to cover her face with her hands.' },
+        { type: 'p', text: '"Look at me. Come on." I gently took one of her hands, which was so cold and so shaky that my heart began to ache, so I could see half of her face. There were bright red spots under her light gray eyes (exhaustion, I\u2019d gathered), mixed with dark purple bruises that kept threatening to enlarge every time she blinked. Her skin was deathly pale, even more pale than normal, which was saying something.' },
+        { type: 'p', text: '"Silvia…" I breathed.' },
+        { type: 'p', text: '"I-I\u2019m sorry, I\u2019m sorry. I meant to be— I meant to— it was so dark and I— I thought I— I thought I saw him, Nick I can\u2019t b-breathe."' },
+        { type: 'p', text: '"Hey…hey hey hey…" I murmured, gently stroking her cheek on the part of the face I could see. I guided her to the couch, laying her down. "It\u2019s okay. You\u2019re safe…you\u2019re safe."' },
+        { type: 'p', text: 'Her breathing slowed slightly. She gripped my hand with all her might and tried to stop shaking, then she failed to stop shaking and started shaking even more.' },
+        { type: 'p', text: '"What can I do?" I whispered, more to myself than to her.' },
+        { type: 'p', text: '"Run away…I-I can\u2019t hurt you…p-please not y-you…not you…"' },
+        { type: 'p', text: 'She kept repeating that phrase until I thought her tongue might fall out. I\u2019d never felt so helpless in my life. I ran to turn the lights on and find her some water. When I returned, she was curled into a small ball, her eyes trying so hard to stay open. She was still muttering to herself.' },
+        { type: 'p', text: '"Sit up," I mumbled, helping her to lean against the couch. She looked so numb. I gently poured the water into her mouth. Her breathing was a bit slower now, but her gaze was still far away.' },
+        { type: 'p', text: '"Silvia." I stated, taking her chin in my hands so she looked at me. Her eyes met mine and drooped heavily. I felt like crying.' },
+        { type: 'p', text: '"Nick…I\u2019m so sorry…" she mumbled, her words almost slurred. Her chin hit her chest and she fell forward and I caught her tightly.' },
+        { type: 'p', text: 'I shushed her and kissed her head. Carefully, I slung her arm over my shoulder and guided her to my bedroom, pulling her shoes off and her cloak away and her jerkin over her head.' },
+        { type: 'p', text: 'Immediately she leaned against me and closed her eyes, her entire body sagging from exhaustion. I lifted her onto the bed, which was surprisingly easy as she was almost weightless. That made me feel sick.' },
+        { type: 'p', text: 'She searched for me with her hand. I lay right in front of her without taking off my shoes because at that moment my shoes didn\u2019t matter at all.' },
+        { type: 'p', text: '"I\u2019m right here." I murmured, tucking her hair behind her ear. How fragile she looked.' },
+        { type: 'p', text: 'She tucked her head under my neck and tried to relax.' },
+        { type: 'p', text: '"Do you wanna tell me what happened?"' },
+        { type: 'p', text: 'She whimpered softly and shook her head.' },
+        { type: 'p', text: '"Okay. That\u2019s okay. Just try to breathe for me, okay?"' },
+        { type: 'p', text: 'She nodded, pressing her face further into my neck. I could feel her letting out small breaths against my skin, but they were getting longer by the second.' },
+        { type: 'p', text: '"I-I\u2019m sorry…" she whispered for the third time.' },
+        { type: 'p', text: '"Don\u2019t be. Silv, you didn\u2019t do anything wrong."' },
+        { type: 'p', text: '"I\u2019ve done s-so much wrong…and now I\u2019ve dragged you into it…and I\u2019m too selfish that I c-can\u2019t let you go."' },
+        { type: 'p', text: '"You better not let me go," I murmured, "I don\u2019t know what I\u2019d do without you."' },
+        { type: 'p', text: 'Her breathing hiccuped, and I realized she was crying. I ran my fingers through her hair, trying to undo all the knots as carefully as possible. That seemed to calm her down a bit.' },
+        { type: 'p', text: 'After a moment, she whispered, "Why do you care so much about me..?  I\u2019m nothing.."' },
+        { type: 'p', text: 'I frowned. "You\u2019re everything to me."' },
+        { type: 'p', text: '"Why?"' },
+        { type: 'p', text: '"You\u2019re beautiful, and smart, and you can be adorable sometimes too, but also real scary, which comes in handy a lot actually."' },
+        { type: 'p', text: 'She half-laughed, closing her eyes. "I love you.."' },
+        { type: 'p', text: '"I love you too Silvia. I always will."' },
+        { type: 'p', text: '"Forever?"' },
+        { type: 'p', text: '"Forever."' },
+        { type: 'p', text: 'She buried her face in my chest and I wrapped my arms around her, careful to get out of the way of her horns.' },
+        { type: 'p', text: '"That\u2019s good…" she whispered.' },
+        { type: 'p', text: 'I kissed her head and let her rest. That night I promised myself that she would always be mine.' },
+        { type: 'pov', text: 'Silvia Nilrilith' },
+        { type: 'p', text: 'I felt like crying that night.' },
+        { type: 'p', text: 'I\u2019m not exactly sure why, but I did. Chris used to tell me crying was the soul\u2019s way of letting things go, but I didn\u2019t really feel like anything was being let go.' },
+        { type: 'p', text: 'So I let myself cry. Silently, so I didn\u2019t wake Nick up. He hadn\u2019t been sleeping well recently and I had no intention of breaking his six hour streak.' },
+        { type: 'p', text: 'But I failed and he woke up. I cursed myself silently as his eyes fluttered open.' },
+        { type: 'p', text: '"Silvia..?" he whispered quietly, reaching out to touch my cheek.' },
+        { type: 'p', text: '"Sorry." I mumbled, and looked away. I felt slightly embarrassed, but mostly guilty for making him feel like he had to take care of me.' },
+        { type: 'p', text: 'He let out a short breath, then pulled me close to his chest. "You don\u2019t have to talk about it. But don\u2019t apologize, okay?"' },
+        { type: 'p', text: '"Mhm." I mumbled, suddenly irritated. Why did he care so much about me? I was only going to hurt him. All I could do was bring him down until he was as broken as I was.' },
+        { type: 'p', text: 'He must have noticed, but he didn\u2019t say anything. He just ran his fingers through my hair, which made me feel drowsy. I fought off the sleepiness, though, so I could say, "This will never end."' },
+        { type: 'p', text: 'His hand stilled in my hair. "What will never end?"' },
+        { type: 'p', text: '"I will break and hurt people and hurt myself and you\u2019ll still let me back into your bar for a whiskey. And even if you didn\u2019t, you\u2019d still love me, and for what? Do you know how many people I\u2019ve killed? How many faces I can\u2019t stop memorizing? Do you know how many voices I hear in my head, day after day," I laughed suddenly, but it wasn\u2019t a funny laugh, it was a get-away-while-you-still-can laugh. "And I can\u2019t fix it. I could NEVER fix it, but you still stay. Why the FUCK do you still stay, Nick?!" I sat up, not daring to look at him. My body was shaking. My eyes hummed darker and I squeezed them shut. When I opened them, he was in front of me. His eyes were brimmed with tears. He looked so very tired.' },
+        { type: 'p', text: '"Please, Silvia, don\u2019t do this to yourself…" he tried to reach out to me, but my hands were inching towards my ears. The humming was loud, louder in my left ear than my right, which meant that one eye was blackening. I cursed, pressing my hands tightly over my ears and closing my eyes. He couldn\u2019t see me like this. Please, Saturn, please don\u2019t let him see me like this.' },
+        { type: 'p', text: 'I think he spoke, but I couldn\u2019t hear him anymore. I felt something wet on my face, tears I assumed. The ground got closer the second I opened my eyes. There was no breath left in my lungs, but I kept trying to tell him to run before I could hurt him more. Before I lost control like I knew I would. I covered my ears so tightly that my fingernails scraped the sides of my head. The humming was too loud for me to process anything, and it hurt. It hurt so bad. It hurt like watching Sarah burn. It hurt like Leon\u2019s gaze. It hurt like hearing Ashlin\u2019s pleas. It hurt like counting the stars.' },
+        { type: 'p', text: 'I looked up at him very suddenly, barely able to see, but there was pain and fear in his eyes. He was yelling, I think, not at me, but to me. I tried to tell him to run away, to leave, but he shook his head and yelled something else. The humming was in my right ear now. I screamed in pain and curled into a ball. He hovered aimlessly, helplessly. Again I screamed at him to run.' },
+        { type: 'p', text: 'But he didn\u2019t listen. Nick Crater never listened. I wrenched my hands off of my ears and crawled to him. Every step was agony, but I told myself it would be worth it if I could protect him. I begged the gods to let me protect him. If no one else, just him.' },
+        { type: 'p', text: 'With one last tear, I wrapped my arms around his legs and Flashed.' },
+        { type: 'break' },
+        { type: 'p', text: 'We appeared deep in the forest. It was the farthest away from the cottage that I could see, but if he started running now he could get far. My eyes kept threatening to close, but I hardly blinked, because I knew that if they reopened I would be gone and so would he.' },
+        { type: 'p', text: '"I love you, Nick.." I tried to say. He held my shoulders and begged something, and I knew he wouldn\u2019t run. I would have to do it myself. I think there were tears on his cheeks. As soon as I stood, the world spun. With the last of my energy, I summoned chains and wrapped them around his legs. I could see them biting into his ankles. Then I Flashed away. And I didn\u2019t stop until I was in a part of the forest I didn\u2019t recognize.' },
+        { type: 'p', text: 'Then I let myself drop.' },
+        { type: 'break' },
+        { type: 'p', text: 'When I woke the forest was dark. Vita was asleep. Nick wasn\u2019t there. And there were no trees. I thought that was weird, because forests usually have trees, but this one didn\u2019t. I stood up, my vision swimming, and looked around.' },
+        { type: 'p', text: 'I saw the trees.' },
+        { type: 'p', text: 'They were on their sides. Some of them were knocked over, some were far away from their trunks. My limbs hurt a lot, I realized. I\u2019d been asleep so long I think it took a while for the feelings in my body to come back. But they came back, all at once, and I immediately sat back down.' },
+        { type: 'p', text: 'There was no humming in my eyes, which told me they were the lightest of gray. The humming only stopped when there was no color. I probably should\u2019ve been grateful it stopped, but I wasn\u2019t. Now I just felt uneasy.' },
+        { type: 'p', text: 'Again, I tried to stand and failed. My legs were wobbling and exhausted. So was the rest of my body. But I figured it wouldn\u2019t be long until I was hungry; I had to find a town. Or a river. Or a growing tree, at least.' },
+        { type: 'p', text: 'There was a rabbit in the bush across from me, too far to lunge at. Carefully, I took my dagger from my belt and threw it. The blade hit the rabbit in the neck and then the rabbit was dead. For a moment I sat, then I crawled over and dragged it back to where I was.' },
+        { type: 'p', text: 'I didn\u2019t thank the Vattalea for the meal. I didn\u2019t have much gratitude for them at that moment.' },
+        { type: 'p', text: 'I ate the rabbit raw, which was definitely a bad idea but I had no strength to waste making a fire.' },
+        { type: 'p', text: 'A few hours later I felt sick from the raw rabbit and the raw rabbit left my body so I guess that problem was solved.' },
+        { type: 'p', text: 'I stood up from the broken-tree forest and half-walked, half-stumbled to a forest that I could actually call a forest. There I curled up against a tree trunk and fell asleep.' },
+        { type: 'p', text: 'I was alone in the forest for fifteen days. I saw Nick on the sixteenth. He looked as tired as I felt, but I can\u2019t tell you how tired I looked because I didn\u2019t have access to a mirror so I guess you\u2019ll just have to imagine it. Or ask Nick, he could tell you.' },
+        { type: 'p', text: 'I probably didn\u2019t look good though. I\u2019d been drinking sap for two weeks. I ate raw rabbit more often than not and then I threw up the raw rabbit so no, I probably didn\u2019t look good.' },
+        { type: 'p', text: 'Nick still looked good though. There was dirt and scratches on him and he was exhausted but he still looked good because Nicholas Crater always looks good.' },
+        { type: 'p', text: 'I tried to stand up, but the humming was back. It was maroon humming, the color of fear humming. I leaned on the tree for support and stood.' },
+        { type: 'p', text: 'He ran for me as soon as I was upright.' },
+        { type: 'p', text: 'At first I thought he was attacking me, but Nick wasn\u2019t a super \u201Cyou-fucking-bitch\u201D type of guy. He was more of an \u201Ci-thought-i-lost-you\u201D type of guy.' },
+        { type: 'p', text: 'Both would\u2019ve been fine with me. The first seemed more appropriate. But he did neither.' },
+        { type: 'p', text: 'He just collapsed into me and grabbed fistfuls of my shirt and sobbed.' },
+        { type: 'p', text: 'I couldn\u2019t move for a while. I think I held him for a good thirty minutes before saying anything.' },
+        { type: 'p', text: '"Nick.." I whispered. My hands were shaking more than normal.' },
+        { type: 'p', text: '"Don\u2019t. Not yet." he responded. His voice was pleading but muffled since it was still hidden in my collarbone.' },
+        { type: 'p', text: 'I waited for twenty more minutes.' },
+        { type: 'p', text: 'I think he noticed my exhaustion, because the moment my legs tried to give out he helped us both sit down.' },
+        { type: 'p', text: 'Then, when he was done crying, he didn\u2019t talk. He just looked at me. I think he knew I was hiding something before he even said anything.' },
+        { type: 'p', text: '"Let me see you." he said.' },
+        { type: 'p', text: 'I\u2019d been prepared for this. <em>Let me see you</em> was the line he used when something bad had happened to me. He would state, repeatedly, that he needed to see all the injuries so he could fix them. I guess that\u2019s true. Doesn\u2019t really help the process though.' },
+        { type: 'p', text: '"Nick, I\u2019m fine." I put on my best convincing face. I\u2019d saved it just for him.' },
+        { type: 'p', text: '"Let me see you." he repeated, dead serious. I\u2019d never heard Nick be dead serious before. The maroon hummed darker.' },
+        { type: 'p', text: 'I swallowed hard and rolled up my left sleeve.' },
+        { type: 'p', text: 'He saw.' },
+        { type: 'p', text: 'He blinked.' },
+        { type: 'p', text: 'On my forearm there were scratches. Not bad ones. It had been a habit for a while, so much so that I\u2019d stopped thinking of it as hurting myself and started thinking of it as grounding myself to reality.' },
+        { type: 'p', text: 'I\u2019d needed a lot of grounding the past weeks.' },
+        { type: 'p', text: 'Nick, unfortunately, didn\u2019t know that.' },
+        { type: 'p', text: 'He sat for a while. Then he cried again, silently.' },
+        { type: 'p', text: 'I quickly rolled back my sleeve, but he stopped me.' },
+        { type: 'p', text: 'He rolled my sleeve all the way to the top of my shoulder and kissed every single scratch, some twice. The deeper ones he kissed so hard it made me wince.' },
+        { type: 'p', text: '"Tell me you\u2019re alive." he whispered, his lips against my skin.' },
+        { type: 'p', text: '"I\u2019m alive." I mumbled softly.' },
+        { type: 'p', text: '"Tell me you\u2019re okay."' },
+        { type: 'p', text: '"I\u2019m okay."' },
+        { type: 'p', text: '"Tell me you\u2019ll come home."' },
+        { type: 'p', text: 'I didn\u2019t respond. If I went back I would hurt him and he would let me. If I went back he would try to fix me.' },
+        { type: 'p', text: '"Silvia."' },
+        { type: 'p', text: 'I stared at the ground.' },
+        { type: 'p', text: 'He reached his hands up to cup my face. "Silvia, please." he begged.' },
+        { type: 'p', text: 'In that moment I had three thoughts.' },
+        { type: 'p', text: 'One. If I go back he will try to help me, and he will get hurt in the process.' },
+        { type: 'p', text: 'Two. I am a fugitive still. He will be hurt for being on my side.' },
+        { type: 'p', text: 'Three. I am dangerous. I could — no — I will hurt him. I am like fire.' },
+        { type: 'p', text: '"I am fire." I whispered suddenly.' },
+        { type: 'p', text: '"What..?" his eyes were wet.' },
+        { type: 'p', text: 'The words spilled. "Fire is hot. Fire hurts. Fire dances and fire gets people too close and fire burns them. But the people always come back when fire gets bigger. They use fire for their needs, so much that fire gets tired. But they always relight it. Fire can be big and fire can make people scared and fire can come with warnings but the warnings are always ignored and fire is always used again. The only —" I swallowed, "The only way to save the people is to put fire out."' },
+        { type: 'p', text: 'He stayed very, very still.' },
+        { type: 'p', text: 'Then he said, "Don\u2019t ever say anything like that again."' },
+        { type: 'p', text: 'I kept my eyes trained on the ground.' },
+        { type: 'p', text: 'He tilted my chin upwards so I had to look at him. He was angry. I\u2019d never seen him truly angry before. The maroon was very loud.' },
+        { type: 'p', text: 'He kept me looking at him when he said, "You can be fire. You can burn. You can hurt —" he practically spat the word, "but I will never, EVER leave you. I wouldn\u2019t leave you if the world was ending. Or — or if I was dying, and you needed to sleep, I would help you sleep first. And I can let you be fire, as long as you\u2019re mine. Please, Silvia, never stop being mine. I can\u2019t lose you, I can\u2019t fucking lose you."' },
+        { type: 'p', text: 'I searched his eyes for lies. There were none.' },
+        { type: 'p', text: 'He brought me very close to his chest and pressed his face into my neck until my heart jumped slightly.' },
+        { type: 'p', text: 'His whisper was almost too soft for me to hear, but after his words he kissed me three times on the neck and ran his fingers through my hair so I would fall asleep. I didn\u2019t for a while. I was thinking about what he said. I will never, ever forget what he said.' },
+        { type: 'p', text: '"You can be fire, and I will be gasoline."' }
+      ]
+    },
+    'tbiabos': {
+      kind: 'novella', label: 'Novella · In Symphon',
+      title: 'To Breathe in a Billow of Smoke',
+      subtitle: 'a Nickvia novella · Part One: ASH · complete',
+      status: 'complete',
+      summary: "The story of how Nick and Silvia meet, fall in love, and survive her mentor. Part One of three (ASH → BETTER → SOLUTUS). Dual POV, one hundred pages, ends with Silvia looking at her future for the first time.",
+      contentNote: "This piece contains onscreen violence, on-page death and resurrection, and depictions of self-harm and suicidal thinking. If those themes are heavy for you right now, you might come back to it another day.",
+      body: [
+        { type: 'p', text: "Part One (ASH) is complete at approximately one hundred pages. What follows is the prologue and the opening of the first bar scene — enough to hear the two voices. The full novella lives in the legendarium document." },
+        { type: 'break' },
+        { type: 'pov', text: 'Silvia Nilrilith · Prologue: SPIRAL' },
+        { type: 'p', text: "The world is dark and the world is cruel." },
+        { type: 'p', text: "I've been thrust onto Echorix by a god who was too bored to write anymore, who needed entertainment." },
+        { type: 'p', text: "I won't argue with that, I mean, I guess it had to be someone." },
+        { type: 'p', text: "Though, I've always wondered how entertaining suffering is, really. How long will it take before the suffering of the same mortal becomes boring in itself? And when she realizes that she was only sent onto the planet to bring destruction and death to mortals, while serving pleasure to the gods above, what can she do?" },
+        { type: 'p', text: "What can she do?" },
+        { type: 'p', text: "What can I do?" },
+        { type: 'p', text: "The world is dark and the world is cruel." },
+        { type: 'p', text: "Sometimes I wonder if I'm the dark and cruel one." },
+        { type: 'p', text: "I like to reassure myself by saying that the god who wrote me just needed the world to have a villain, a shrew, a scapegoat. Because I'm not sure I could be anybody else." },
+        { type: 'p', text: "My best friend says people can change. He died two months ago, but he still keeps saying it. I used to believe him, but I haven't been able to change from an angry, vengeful, unlovable demon, so I'll just have to live vicariously through someone who has." },
+        { type: 'p', text: "I wish those words still circled in my spiraled mind. Now I only receive encouragement from the whispering wind, echoes from voices of the past, because someone suspended in the sky decided that's all I deserve. Torture." },
+        { type: 'p', text: "If I could sacrifice a thousand lambs to be granted the relief of a silent heart I would. But I can't." },
+        { type: 'p', text: "I never will." },
+        { type: 'p', text: "And I don't know if that's just bad luck or deliberate effort, but I've come to find that no matter how hard I try, the world has its heroes and the heroes will never be me." },
+        { type: 'p', text: "For as long as ink bleeds through my eyes, I will always be a monster." },
+        { type: 'break' },
+        { type: 'pov', text: 'Nicholas Crater · Part One: ASH' },
+        { type: 'p', text: "It was cold outside." },
+        { type: 'p', text: "I had been inside all night, but it was the first thing I noticed. One of the things I liked to do while waiting for new customers was notice things. In fact, I liked it so much that I did it even when I wasn't waiting, actually. On slow nights I would just stand behind the counter and classify every person I saw into categories, or count the number of brunettes I saw. On walks I would count the stones in the new Mysthaven Castle as it was being built, the shade of red in the apples at the stalls outside the bar, things like that. All of this is to say that when she walked through the door I noticed everything about her." },
+        { type: 'p', text: "She had dark black hair that was messy and fell farther than I could see over the bar, curved black horns that made me feel nervous, and a much-too-pale face littered with scars. There was grime on her green shirt and scratches on her leather jerkin. The rest of her I couldn't see without being too conspicuous, which was not at all my intention. I already told you, noticing was one of my things. Anyways, that was all I could notice before she almost appeared before me and waited for me to speak so she wouldn't have to. I noticed that there was something oddly familiar about her. I noticed her eyes were gray. I'd never met a girl with gray eyes before. I guess I didn't meet a lot of girls in the first place, though. Was this even technically a 'meet'? This was my job." },
+        { type: 'p', text: "\u201CWhat can I get you?\u201D I said as cheerfully as possible, but also with an edge. I figured that would be someone she would want to talk to. Not that I cared that much. Talking was like 60% of my job." },
+        { type: 'p', text: "\u201CWhat\u2019s cheap?\u201D she mimicked my tone exactly, but her eyes didn\u2019t match her voice at all. She looked devastated and exhausted, and almost scared. I was still trying to figure out how I recognized her in the back of my mind." },
+        { type: 'p', text: "I cleared my throat, \u201CWhiskey?\u201D" },
+        { type: 'p', text: "She nodded a simple nod and began tapping her foot. I heard the tapping because she was one of two people in the bar. The other person was me." },
+        { type: 'break' },
+        { type: 'p', text: "(The rest of Part One continues in the legendarium document. Approximately one hundred pages, dual POV throughout.)" }
+      ]
+    }
+  };
+
+  const chapterOrder = ['silvia-chapter', 'christopher-chapter'];
+  const vignetteOrder = ['fire-and-gasoline', 'tbiabos'];
+
+  function renderReadingGrid(orderList, containerId) {
+    const grid = document.getElementById(containerId);
+    if (!grid) return;
+    grid.innerHTML = orderList.map(slug => {
+      const piece = reading[slug];
+      const isReady = piece.body && piece.body.length > 0 && piece.body[0].text && !piece.body[0].text.startsWith('Coming soon');
+      const classExtra = isReady ? '' : ' coming-soon';
+      return `
+        <div class="chapter-card${classExtra}" ${isReady ? `onclick="goTo('read-${slug}')"` : ''}>
+          <div class="chapter-meta">${piece.subtitle}</div>
+          <h3>${piece.title}</h3>
+          <p class="chapter-summary">${piece.summary}</p>
+          <div class="chapter-status">${piece.status}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderReading(slug) {
+    const piece = reading[slug];
+    if (!piece) return false;
+    const container = document.getElementById('reader-content');
+    const bodyParts = piece.body.map(part => {
+      if (part.type === 'p') return `<p>${part.text}</p>`;
+      if (part.type === 'break') return `<div class="scene-break">❦ ❦ ❦</div>`;
+      if (part.type === 'pov') return `<div class="pov-marker">— ${part.text} —</div>`;
+      return '';
+    }).join('');
+    const noteHTML = piece.contentNote
+      ? `<div class="content-note"><strong>A note before reading</strong>${piece.contentNote}</div>`
+      : '';
+    container.innerHTML = `
+      <a class="back-link" onclick="goTo('read')">← back to reading</a>
+      <div class="reader-label">${piece.label}</div>
+      <h1>${piece.title}</h1>
+      <div class="reader-meta">${piece.subtitle}</div>
+      <div class="reader-divider">❦ ❦ ❦</div>
+      ${noteHTML}
+      <div class="reader-body">
+        ${bodyParts}
+      </div>
+    `;
+    return true;
+  }
+
+  // Latest piece on home page — pulls newest readable piece
+  function getLatestPiece() {
+    // Priority order: vignettes first (since Fire and Gasoline is the newest complete piece),
+    // then chapters. Returns first piece that has real body content.
+    const allSlugs = [...vignetteOrder, ...chapterOrder];
+    for (const slug of allSlugs) {
+      const piece = reading[slug];
+      if (piece && piece.body && piece.body.length > 0 && piece.body[0].text && !piece.body[0].text.startsWith('Coming soon')) {
+        return { slug, piece };
+      }
+    }
+    return null;
+  }
+
+  function renderLatestWidget() {
+    const latest = getLatestPiece();
+    if (!latest) return;
+    document.getElementById('latest-title').textContent = latest.piece.title;
+    document.getElementById('latest-sub').textContent = latest.piece.subtitle;
+  }
+
+  function goToLatest() {
+    const latest = getLatestPiece();
+    if (latest) goTo('read-' + latest.slug);
+  }
+
+  // Map zoom interaction
+  function initMapZoom() {
+    const wrapper = document.getElementById('mapWrapper');
+    const img = document.getElementById('mapImage');
+    if (!wrapper || !img) return;
+
+    let zoomed = false;
+    let panX = 0, panY = 0;
+    let startX = 0, startY = 0;
+    let isDragging = false;
+    let didDrag = false;
+
+    function applyTransform() {
+      img.style.transform = zoomed
+        ? `scale(2.2) translate(${panX}px, ${panY}px)`
+        : 'scale(1) translate(0, 0)';
+    }
+
+    function clampPan() {
+      // Roughly limit pan so the image doesn't drift completely off-screen
+      const rect = wrapper.getBoundingClientRect();
+      const limitX = rect.width / 3;
+      const limitY = rect.height / 3;
+      panX = Math.max(-limitX, Math.min(limitX, panX));
+      panY = Math.max(-limitY, Math.min(limitY, panY));
+    }
+
+    wrapper.addEventListener('click', (e) => {
+      if (didDrag) { didDrag = false; return; }
+      zoomed = !zoomed;
+      if (!zoomed) { panX = 0; panY = 0; }
+      wrapper.classList.toggle('zoomed', zoomed);
+      img.classList.toggle('zoomed', zoomed);
+      applyTransform();
+    });
+
+    wrapper.addEventListener('pointerdown', (e) => {
+      if (!zoomed) return;
+      isDragging = true;
+      didDrag = false;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+      wrapper.setPointerCapture(e.pointerId);
+    });
+
+    wrapper.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      clampPan();
+      applyTransform();
+      didDrag = true;
+    });
+
+    wrapper.addEventListener('pointerup', (e) => {
+      isDragging = false;
+      try { wrapper.releasePointerCapture(e.pointerId); } catch (_) {}
+    });
+  }
+
+  function goTo(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    if (pageId.startsWith('voice-')) {
+      const slug = pageId.slice(6);
+      if (renderRaconteur(slug)) {
+        document.getElementById('page-voice').classList.add('active');
+        setVoiceAmbient(slug);
+      }
+    } else if (pageId.startsWith('interlude-')) {
+      const slug = pageId.slice(10);
+      if (renderInterlude(slug)) {
+        document.getElementById('page-interlude').classList.add('active');
+        setVoiceAmbient(slug);
+      }
+    } else if (pageId.startsWith('read-')) {
+      const slug = pageId.slice(5);
+      if (renderReading(slug)) {
+        document.getElementById('page-reader').classList.add('active');
+        clearVoiceAmbient();
+      }
+    } else {
+      const page = document.getElementById('page-' + pageId);
+      if (page) page.classList.add('active');
+      else document.getElementById('page-home').classList.add('active');
+      if (pageId === 'interludes') renderInterludesGrid();
+      if (pageId === 'read') {
+        renderReadingGrid(chapterOrder, 'chapters-grid');
+        renderReadingGrid(vignetteOrder, 'vignettes-grid');
+      }
+      if (pageId === 'map') {
+        setTimeout(initMapZoom, 50);
+      }
+      clearVoiceAmbient();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    location.hash = pageId;
+  }
+
+  // Initialize
+  renderVoicesGrid();
+  renderInterludesGrid();
+  renderReadingGrid(chapterOrder, 'chapters-grid');
+  renderReadingGrid(vignetteOrder, 'vignettes-grid');
+  renderLatestWidget();
+  const initial = location.hash.slice(1) || 'home';
+  goTo(initial);
+
+  // Drifting leaves (default — only shows when no voice ambient is active)
+  const leavesContainer = document.getElementById('leaves');
+  const leafChars = ['❧','✦','❦','❀'];
+  for (let i = 0; i < 14; i++) {
+    const leaf = document.createElement('div');
+    leaf.className = 'leaf';
+    leaf.textContent = leafChars[i % leafChars.length];
+    leaf.style.left = Math.random() * 100 + '%';
+    leaf.style.fontSize = (0.8 + Math.random() * 1.2) + 'rem';
+    leaf.style.animationDelay = (Math.random() * 25) + 's';
+    leaf.style.animationDuration = (18 + Math.random() * 15) + 's';
+    leavesContainer.appendChild(leaf);
+  }
+
+  // ============================================
+  // VOICE AMBIENT — per-raconteur full-page motifs
+  // ============================================
+  // Each voice gets a set of symbols, a color, and an animation style.
+  const voiceAmbients = {
+    saturn:      { symbols: ['✦','✧','⋆','✶','✷'],   color: 'rgba(200,200,240,0.4)',  anim: 'twinkle 4s ease-in-out infinite', sizeRange: [0.6, 1.6], count: 70, scatter: true },
+    vita:        { symbols: ['✺','✹','❋','✦'],        color: 'rgba(240,192,96,0.32)',  anim: 'drift-slow 30s linear infinite', sizeRange: [0.8, 1.8], count: 30 },
+    reika:       { symbols: ['│','┃','❘','╲','╱'],    color: 'rgba(168,192,216,0.36)', anim: 'drift-fast 4s linear infinite',  sizeRange: [0.7, 1.4], count: 70 },
+    archemoros:  { symbols: ['◐','◑','◒','◓','✦'],    color: 'rgba(176,153,224,0.36)', anim: 'drift-slow 35s linear infinite', sizeRange: [0.9, 2.0], count: 25 },
+    rubyrose:    { symbols: ['◆','◇','❖','✦'],        color: 'rgba(232,144,144,0.34)', anim: 'sway 22s linear infinite',       sizeRange: [0.9, 1.7], count: 28 },
+    fenris:      { symbols: ['✦','✧','✶','✱','✲'],    color: 'rgba(240,144,192,0.36)', anim: 'twinkle 3s ease-in-out infinite', sizeRange: [0.6, 1.4], count: 65, scatter: true },
+    odalia:      { symbols: ['❦','✦','◆','❖'],        color: 'rgba(216,96,96,0.32)',   anim: 'drift 28s linear infinite',      sizeRange: [0.8, 1.6], count: 28 },
+    naomi:       { symbols: ['♪','♫','♩','♬'],        color: 'rgba(200,216,232,0.34)', anim: 'sway 26s linear infinite',       sizeRange: [0.9, 1.6], count: 30 },
+    silver:      { symbols: ['★','☆','✦','✧'],        color: 'rgba(200,200,208,0.34)', anim: 'drift 24s linear infinite',      sizeRange: [0.8, 1.7], count: 32 },
+    ashlin:      { symbols: ['❀','✿','✾','❁','❃'],    color: 'rgba(240,208,112,0.34)', anim: 'sway 22s linear infinite',       sizeRange: [0.9, 1.9], count: 32 },
+    silvia:      { symbols: ['⚭','⚯','◯','○'],         color: 'rgba(184,144,224,0.38)', anim: 'drift-slow 32s linear infinite', sizeRange: [1.1, 2.4], count: 26 },
+    christopher: { symbols: ['✦','✧','⋆','✶'],        color: 'rgba(184,208,144,0.34)', anim: 'twinkle 5s ease-in-out infinite', sizeRange: [0.7, 1.5], count: 60, scatter: true },
+    onine:       { symbols: ['✦','❦','✶','✧'],        color: 'rgba(232,160,96,0.34)',  anim: 'drift 26s linear infinite',      sizeRange: [0.8, 1.5], count: 28 },
+    charlotte:   { symbols: ['✦','✧','✶','❦'],        color: 'rgba(128,176,232,0.34)', anim: 'drift 24s linear infinite',      sizeRange: [0.8, 1.5], count: 32 },
+    caleb:       { symbols: ['❦','❧','☙','✦'],        color: 'rgba(208,160,112,0.32)', anim: 'drift-slow 30s linear infinite', sizeRange: [0.8, 1.5], count: 26 },
+    calliope:    { symbols: ['✦','◆','◇','❖'],        color: 'rgba(224,112,144,0.34)', anim: 'drift 26s linear infinite',      sizeRange: [0.8, 1.6], count: 28 },
+    vyne:        { symbols: ['❀','✾','❁','✿','❃'],    color: 'rgba(152,208,152,0.34)', anim: 'sway 24s linear infinite',       sizeRange: [0.9, 1.8], count: 32 },
+    lilac:       { symbols: ['❀','✿','❁','✾','❃'],    color: 'rgba(216,184,232,0.36)', anim: 'sway 22s linear infinite',       sizeRange: [0.7, 1.5], count: 36 },
+    roxanne:     { symbols: ['♪','♫','♩','♬'],        color: 'rgba(200,200,216,0.34)', anim: 'sway 26s linear infinite',       sizeRange: [0.8, 1.5], count: 32 },
+
+    // Interludes
+    kaiso:       { symbols: ['❦','✦','❧','☙'],         color: 'rgba(232,184,112,0.34)', anim: 'sway 24s linear infinite',       sizeRange: [0.9, 1.6], count: 26 },
+    nova:        { symbols: ['✦','✧','⋆','◇'],         color: 'rgba(180,184,210,0.32)', anim: 'twinkle 6s ease-in-out infinite', sizeRange: [0.6, 1.4], count: 36, scatter: true },
+    dimitri:     { symbols: ['✦','◯','❦','✧'],         color: 'rgba(208,176,112,0.32)', anim: 'sway 26s linear infinite',       sizeRange: [0.8, 1.5], count: 26 },
+    henry:       { symbols: ['◇','◆','❖','✧'],         color: 'rgba(180,200,216,0.3)',  anim: 'drift-slow 32s linear infinite', sizeRange: [0.8, 1.4], count: 22 },
+    defessus:    { symbols: ['·','✦','✧','⋆','✶'],     color: 'rgba(255,216,128,0.42)', anim: 'twinkle 3s ease-in-out infinite', sizeRange: [0.5, 1.2], count: 75, scatter: true },
+    alstroemeria:{ symbols: ['❦','❧','✿','❀','☙'],     color: 'rgba(216,224,200,0.34)', anim: 'drift-slow 32s linear infinite', sizeRange: [0.9, 1.7], count: 26 },
+    anilith:     { symbols: ['♩','♬','♪','♫'],         color: 'rgba(144,168,208,0.36)', anim: 'sway 28s linear infinite',       sizeRange: [1.0, 1.8], count: 26 },
+    natalia:     { symbols: ['✦','◆','❖','✧','✶'],     color: 'rgba(216,216,232,0.32)', anim: 'twinkle 5s ease-in-out infinite', sizeRange: [0.7, 1.5], count: 40, scatter: true },
+    bethwood:    { symbols: ['✦','✧','⋆','✶'],         color: 'rgba(176,200,160,0.3)',  anim: 'twinkle 6s ease-in-out infinite', sizeRange: [0.6, 1.3], count: 32, scatter: true },
+    barnes:      { symbols: ['❦','❧','☙','✦'],         color: 'rgba(208,184,144,0.3)',  anim: 'drift-slow 30s linear infinite', sizeRange: [0.8, 1.4], count: 22 },
+    leon:        { symbols: ['◆','◇','✦','❖'],         color: 'rgba(208,96,96,0.34)',   anim: 'drift 24s linear infinite',      sizeRange: [0.8, 1.6], count: 24 },
+    nicholas:    { symbols: ['❦','✦','✧','⋆'],         color: 'rgba(216,168,96,0.32)',  anim: 'drift-slow 28s linear infinite', sizeRange: [0.8, 1.4], count: 24 },
+    dolus:       { symbols: ['·','⋆','✦'],              color: 'rgba(160,160,168,0.22)', anim: 'twinkle 8s ease-in-out infinite', sizeRange: [0.5, 1.0], count: 18, scatter: true }
+  };
+
+  function setVoiceAmbient(slug) {
+    const ambient = document.getElementById('voiceAmbient');
+    ambient.innerHTML = '';
+    ambient.classList.remove('active');
+    document.body.classList.remove('has-voice-ambient');
+    if (!slug || !voiceAmbients[slug]) return;
+    const cfg = voiceAmbients[slug];
+    document.body.classList.add('has-voice-ambient');
+    for (let i = 0; i < cfg.count; i++) {
+      const m = document.createElement('div');
+      m.className = 'ambient-mark';
+      m.textContent = cfg.symbols[i % cfg.symbols.length];
+      m.style.color = cfg.color;
+      const size = cfg.sizeRange[0] + Math.random() * (cfg.sizeRange[1] - cfg.sizeRange[0]);
+      m.style.fontSize = size + 'rem';
+      m.style.left = Math.random() * 100 + '%';
+      if (cfg.scatter) {
+        // Scattered: fixed position with twinkle / fade animation
+        m.style.top = Math.random() * 100 + '%';
+        m.style.animation = cfg.anim;
+        m.style.animationDelay = (Math.random() * 5) + 's';
+      } else {
+        // Drifting: animation handles vertical motion
+        m.style.animation = cfg.anim;
+        m.style.animationDelay = (Math.random() * 25) + 's';
+      }
+      ambient.appendChild(m);
+    }
+    // Force reflow then activate for fade-in
+    void ambient.offsetWidth;
+    ambient.classList.add('active');
+  }
+
+  function clearVoiceAmbient() { setVoiceAmbient(null); }
+</script>
+
+</body>
+</html>
